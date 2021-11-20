@@ -1,0 +1,64 @@
+<NotepadPlus>
+    <UserLang name="Stationeers (MIPS)" ext="ic10" udlVersion="2.1">
+        <Settings>
+            <Global caseIgnored="yes" allowFoldOfComments="yes" foldCompact="yes" forcePureLC="0" decimalSeparator="0" />
+            <Prefix Keywords1="no" Keywords2="yes" Keywords3="no" Keywords4="no" Keywords5="no" Keywords6="no" Keywords7="no" Keywords8="no" />
+        </Settings>
+        <KeywordLists>
+            <Keywords name="Comments">00# 01 02 03 04</Keywords>
+            <Keywords name="Numbers, prefix1"></Keywords>
+            <Keywords name="Numbers, prefix2"></Keywords>
+            <Keywords name="Numbers, extras1"></Keywords>
+            <Keywords name="Numbers, extras2"></Keywords>
+            <Keywords name="Numbers, suffix1"></Keywords>
+            <Keywords name="Numbers, suffix2"></Keywords>
+            <Keywords name="Numbers, range"></Keywords>
+            <Keywords name="Operators1"></Keywords>
+            <Keywords name="Operators2"></Keywords>
+            <Keywords name="Folders in code1, open"></Keywords>
+            <Keywords name="Folders in code1, middle">:</Keywords>
+            <Keywords name="Folders in code1, close"></Keywords>
+            <Keywords name="Folders in code2, open"></Keywords>
+            <Keywords name="Folders in code2, middle"></Keywords>
+            <Keywords name="Folders in code2, close"></Keywords>
+            <Keywords name="Folders in comment, open"></Keywords>
+            <Keywords name="Folders in comment, middle"></Keywords>
+            <Keywords name="Folders in comment, close"></Keywords>
+            <Keywords name="Keywords1">l lb lr ls s sb&#x000D;&#x000A;peek pop push&#x000D;&#x000A;j jr jal&#x000D;&#x000A;alias define hcf move sleep yield&#x000D;&#x000A;abs acos add asin atan ceil cos div exp floor log max min mod mul rand round sin sqrt sub tan trunc&#x000D;&#x000A;and nor or xor</Keywords>
+            <Keywords name="Keywords2">bdns dbnsal bdse bdseal brdns brdse&#x000D;&#x000A;bap bapal bapz bapzal beq beqal beqz beqzal bge bgeal bgez bgezal bgt bgtal bgtz bgtzal ble bleal blez blezal blt bltal bltz bltzal bna bnaal bnaz bnazal bne bneal bnez bnezal&#x000D;&#x000A;brap brapz breq breqz brge brgez brgt brgtz brle brlez brlt brtlz brna brnaz brne brnez&#x000D;&#x000A;sap sapz sdns sdse select seq seqz sge sgez sgt sgtz sle slez slt sltz sna snaz sne snez</Keywords>
+            <Keywords name="Keywords3">Activate&#x000D;&#x000A;AirRelease&#x000D;&#x000A;Charge&#x000D;&#x000A;ChargeRatio&#x000D;&#x000A;Class&#x000D;&#x000A;ClearMemory&#x000D;&#x000A;CollectableGoods&#x000D;&#x000A;Color&#x000D;&#x000A;Combustion&#x000D;&#x000A;CompletionRatio&#x000D;&#x000A;Damage&#x000D;&#x000A;Efficiency&#x000D;&#x000A;ElevatorLevel&#x000D;&#x000A;ElevatorSpeed&#x000D;&#x000A;Error&#x000D;&#x000A;ExportCount&#x000D;&#x000A;Filtration&#x000D;&#x000A;Fuel&#x000D;&#x000A;Growth&#x000D;&#x000A;Harvest&#x000D;&#x000A;Health&#x000D;&#x000A;Horizontal&#x000D;&#x000A;HorizontalRatio&#x000D;&#x000A;Idle&#x000D;&#x000A;ImportCount&#x000D;&#x000A;Lock&#x000D;&#x000A;Mature&#x000D;&#x000A;Maximum&#x000D;&#x000A;MaxQuantity&#x000D;&#x000A;Mode&#x000D;&#x000A;OccupantHash&#x000D;&#x000A;Occupied&#x000D;&#x000A;On&#x000D;&#x000A;Open&#x000D;&#x000A;Output&#x000D;&#x000A;Plant&#x000D;&#x000A;PositionX&#x000D;&#x000A;PositionY&#x000D;&#x000A;PositionZ&#x000D;&#x000A;Power&#x000D;&#x000A;PowerActual&#x000D;&#x000A;PowerGeneration&#x000D;&#x000A;PowerPotential&#x000D;&#x000A;PowerRequired&#x000D;&#x000A;Pressure&#x000D;&#x000A;PressureAir&#x000D;&#x000A;PressureExternal&#x000D;&#x000A;PressureInteral&#x000D;&#x000A;PressureSetting&#x000D;&#x000A;PressureWaste&#x000D;&#x000A;Quantity&#x000D;&#x000A;Ratio&#x000D;&#x000A;RatioCarbonDioxide&#x000D;&#x000A;RatioNitrogen&#x000D;&#x000A;RatioNitrousOxide&#x000D;&#x000A;RatioOxygen&#x000D;&#x000A;RatioPollutant&#x000D;&#x000A;RatioVolatiles&#x000D;&#x000A;RatioWater&#x000D;&#x000A;Reagents&#x000D;&#x000A;RecipeHash&#x000D;&#x000A;RequestHash&#x000D;&#x000A;RequiredPower&#x000D;&#x000A;ReturnFuelCost&#x000D;&#x000A;Setting&#x000D;&#x000A;SolarAngle&#x000D;&#x000A;Temperature&#x000D;&#x000A;TemperatureExternal&#x000D;&#x000A;TemperatureSettings&#x000D;&#x000A;TotalMoles&#x000D;&#x000A;VelocityMagnitude&#x000D;&#x000A;VelocityRelativeX&#x000D;&#x000A;VelocityRelativeY&#x000D;&#x000A;VelocityRelativeZ&#x000D;&#x000A;Vertical&#x000D;&#x000A;VerticalRatio&#x000D;&#x000A;Volume</Keywords>
+            <Keywords name="Keywords4">ra sp&#x000D;&#x000A;db&#x000D;&#x000A;d0 d1 d2 d3 d4 d5&#x000D;&#x000A;dr0 dr1 dr2 dr3 dr4 dr5 dr6 dr7 dr8 dr9 dr10 dr11 dr12 dr13 dr14 dr15 dr16 dr17&#x000D;&#x000A;r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15 r16 r17&#x000D;&#x000A;rr0 rr1 rr2 rr3 rr4 rr5 rr6 rr7 rr8 rr9 rr10 rr11 rr12 rr13 rr14 rr15 rr16 rr17</Keywords>
+            <Keywords name="Keywords5"></Keywords>
+            <Keywords name="Keywords6"></Keywords>
+            <Keywords name="Keywords7"></Keywords>
+            <Keywords name="Keywords8"></Keywords>
+            <Keywords name="Delimiters">00 01 02: 03 04 05: 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23</Keywords>
+        </KeywordLists>
+        <Styles>
+            <WordsStyle name="DEFAULT" fgColor="008000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="COMMENTS" fgColor="FF0000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="LINE COMMENTS" fgColor="808040" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="NUMBERS" fgColor="FF8040" bgColor="FFFFFF" fontName="ic10" fontStyle="0" nesting="0" />
+            <WordsStyle name="KEYWORDS1" fgColor="000080" bgColor="FFFFFF" fontName="no" fontStyle="1" nesting="0" />
+            <WordsStyle name="KEYWORDS2" fgColor="000080" bgColor="FFFFFF" fontName="&#x0B98;&#x0822;EditCo&#x0010;" fontStyle="0" nesting="0" />
+            <WordsStyle name="KEYWORDS3" fgColor="0000FF" bgColor="FFFFFF" fontName="&#x2568;&#x0825;sConta&#x0019;" fontStyle="0" nesting="0" />
+            <WordsStyle name="KEYWORDS4" fgColor="800000" bgColor="FFFFFF" fontName="no" fontStyle="0" nesting="0" />
+            <WordsStyle name="KEYWORDS5" fgColor="0000FF" bgColor="FFFFFF" fontName="&#x4C40;&#x0807;" fontStyle="0" nesting="0" />
+            <WordsStyle name="KEYWORDS6" fgColor="800000" bgColor="FFFFFF" fontName="&#xCB38;&#x0805;&#x0005;&#x0101;&#x0004;&#xCAF0;&#x0805;&#x0004;&#x0101;&#x0003;le&gt;" fontStyle="0" nesting="0" />
+            <WordsStyle name="KEYWORDS7" fgColor="000000" bgColor="FFFFFF" fontName="&#x1550;&#x0835;Sizer_&#x0009;" fontStyle="0" nesting="0" />
+            <WordsStyle name="KEYWORDS8" fgColor="000000" bgColor="FFFFFF" fontName="&#x4BA0;&#x0807;Sizer_&#x0009;" fontStyle="0" nesting="0" />
+            <WordsStyle name="OPERATORS" fgColor="FF0000" bgColor="FFFFFF" fontName="0" fontStyle="1" nesting="0" />
+            <WordsStyle name="FOLDER IN CODE1" fgColor="FF0000" bgColor="FFFFFF" fontName="0" fontStyle="0" nesting="0" />
+            <WordsStyle name="FOLDER IN CODE2" fgColor="000000" bgColor="FFFFFF" fontName="no" fontStyle="0" nesting="0" />
+            <WordsStyle name="FOLDER IN COMMENT" fgColor="000000" bgColor="FFFFFF" fontName="FFFFFF" fontStyle="0" nesting="0" />
+            <WordsStyle name="DELIMITERS1" fgColor="FF0000" bgColor="FFFFFF" fontName="0" fontStyle="0" nesting="0" />
+            <WordsStyle name="DELIMITERS2" fgColor="FF00FF" bgColor="FFFFFF" fontName="1" fontStyle="1" nesting="0" />
+            <WordsStyle name="DELIMITERS3" fgColor="000000" bgColor="FFFFFF" fontName="&#x0998;&#x0822;" fontStyle="0" nesting="0" />
+            <WordsStyle name="DELIMITERS4" fgColor="000000" bgColor="FFFFFF" fontName="FFFFFF" fontStyle="0" nesting="0" />
+            <WordsStyle name="DELIMITERS5" fgColor="000000" bgColor="FFFFFF" fontName="0" fontStyle="0" nesting="0" />
+            <WordsStyle name="DELIMITERS6" fgColor="000000" bgColor="FFFFFF" fontName="&#xAA70;&#x0810;s" fontStyle="0" nesting="0" />
+            <WordsStyle name="DELIMITERS7" fgColor="000000" bgColor="FFFFFF" fontName="&#xD640;&#x081F;" fontStyle="0" nesting="0" />
+            <WordsStyle name="DELIMITERS8" fgColor="000000" bgColor="FFFFFF" fontName="0" fontStyle="0" nesting="0" />
+        </Styles>
+    </UserLang>
+</NotepadPlus>
