@@ -21,8 +21,7 @@ j checkNitrousOxide
 checkOxygen:
 l r0 Sensor RatioOxygen
 bne r0 r0 removeOxygen # Check NaN ratio
-sub r0 DesiredRatioOxygen r0
-bgtz r0 removeOxygen
+bgt r0 DesiredRatioOxygen removeOxygen
 s O2_Filter On 0
 j checkNitrousOxide
 removeOxygen:
@@ -31,8 +30,7 @@ s O2_Filter On 1
 checkNitrousOxide:
 l r0 Sensor RatioNitrousOxide
 bne r0 r0 removeNitrousOxide # Check NaN ratio
-sub r0 r0 DesiredRatioNitrousOxide
-bgtz r0 removeNitrousOxide
+bgt r0 DesiredRatioNitrousOxide removeNitrousOxide
 s N20_Filter On 0
 j checkCarbonDioxide
 removeNitrousOxide:
@@ -41,8 +39,7 @@ s N20_Filter On 1
 checkCarbonDioxide:
 l r0 Sensor RatioCarbonDioxide
 bne r0 r0 removeCarbonDioxide # Check NaN ratio
-sub r0 r0 DesiredRatioCarbonDioxide
-bgtz r0 removeCarbonDioxide
+bgt r0 DesiredRatioCarbonDioxide removeCarbonDioxide
 s CO2_Filter On 0
 j checkNitrogen
 removeCarbonDioxide:
@@ -51,8 +48,7 @@ s CO2_Filter On 1
 checkNitrogen:
 l r0 Sensor RatioNitrogen
 bne r0 r0 removeNitrogen # Check NaN ratio
-sub r0 r0 DesiredRatioNitrogen
-bgtz r0 removeNitrogen
+bgt r0 DesiredRatioNitrogen removeNitrogen
 s N2_Filter On 0
 j checkPollutant
 removeNitrogen:
@@ -61,8 +57,7 @@ s N2_Filter On 1
 checkPollutant:
 l r0 Sensor RatioPollutant
 bne r0 r0 removePollutant # Check NaN ratio
-sub r0 r0 DesiredRatioPollutant
-bgtz r0 removePollutant
+bgt r0 DesiredRatioPollutant removePollutant
 s X_Filter On 0
 j checkVolatiles
 removePollutant:
@@ -71,8 +66,7 @@ s X_Filter On 1
 checkVolatiles:
 l r0 Sensor RatioVolatiles
 bne r0 r0 removeVolatiles # Check NaN ratio
-sub r0 r0 DesiredRatioVolatiles
-bgtz r0 removeVolatiles
+bgt r0 DesiredRatioVolatiles removeVolatiles
 s H2_Filter On 0
 j done
 removeVolatiles:
