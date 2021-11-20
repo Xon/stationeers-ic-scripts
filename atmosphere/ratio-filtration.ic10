@@ -1,7 +1,8 @@
 # activates filtration based on ratios not being desirable
 
 alias Sensor d0
-alias OxygenFilter d1
+#alias OxygenFilter d1
+alias NitrousOxideFilter d1
 alias CarbonDioxideFilter d2
 alias NitrogenFilter d3
 alias PollutantFilter d4
@@ -12,18 +13,30 @@ define DesiredRatioCarbonDioxide 0.1
 define DesiredRatioNitrogen 0.7
 define DesiredRatioPollutant 0
 define DesiredRatioVolatiles 0
+define DesiredRatioNitrousOxide 0
 
 loop:
 
-checkO2:
+j checkNitrousOxide
+checkOxygen:
 l r0 Sensor RatioOxygen
 bne r0 r0 removeOxygen # Check NaN ratio
 sub r0 DesiredRatioOxygen r0
 bgtz r0 removeOxygen
 s OxygenFilter On 0
-j checkCarbonDioxide
+j checkNitrousOxide
 removeOxygen:
 s OxygenFilter On 1
+
+checkNitrousOxide:
+l r0 Sensor RatioNitrousOxide
+bne r0 r0 removeNitrousOxide # Check NaN ratio
+sub r0 DesiredRatioNitrousOxide r0
+bgtz r0 removeNitrousOxide
+s NitrousOxideFilter On 0
+j checkCarbonDioxide
+removeNitrousOxide:
+s NitrousOxideFilter On 1
 
 checkCarbonDioxide:
 l r0 Sensor RatioCarbonDioxide
