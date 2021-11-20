@@ -39,10 +39,8 @@ j waitCanisterEqualize
 unknownItem:
 ls r1 SensorSrc 0 Pressure
 move r2 DesiredGasCanisterPressure
-move r3 tankPumpVolume
 
 waitCanisterEqualize:
-div r1 r1 1000
 move r3 pumpVolume
 s db Setting r1
 s Pump On 0
@@ -51,12 +49,13 @@ j pressureCheck
 
 assumeStructure:
 l r1 SensorSrc Pressure
-div r1 r1 1000
 move r2 DesiredPipePressure
+move r3 tankPumpVolume
 
 pressureCheck:
 l r4 Pump On
 bltz r4 skipBias
+mul r2 r2 1000
 sub r2 r2 500
 skipBias:
 blt r1 r2 addGas
