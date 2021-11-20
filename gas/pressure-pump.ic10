@@ -55,8 +55,8 @@ div r1 r1 1000
 move r2 DesiredPipePressure
 
 pressureCheck:
-l r3 Pump On
-bltz r3 skipBias
+l r4 Pump On
+bltz r4 skipBias
 add r2 r2 500
 skipBias:
 blt r1 r2 addGas
