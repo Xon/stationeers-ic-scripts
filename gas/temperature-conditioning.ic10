@@ -1,0 +1,82 @@
+﻿# Using a ballast tank, keep it at the target temp
+# while topping up from an external source
+# external source is assumed to be very hot
+
+alias Tank d0
+alias TankCooling d1
+alias OutputValve d2
+alias InputReg d3
+
+# celcius/kpa for temp/pressure
+define tankMinTemperature 18
+define tankMaxTemperature 20
+define tankMinPresssure 200
+
+j loop
+deviceSetupError:
+s db Setting -999
+s db error 1
+loop:
+# validate connections
+bdns Tank deviceSetupError
+bdns InputReg deviceSetupError
+bdns OutputValve deviceSetupError
+bdns TankCooling deviceSetupError
+
+tankColdCheck:
+# if (Tank.Temperature < tankMinTemperature)
+l r0 Tank Temperature
+sub r0 r0 273.15
+s db Setting r0
+blt r0 tankMinTemperature tankIsTooCold
+j tankHotCheck
+tankIsTooCold:
+s InputReg On 1
+s OutputValve On 0
+s TankCooling On 0
+j done
+
+tankHotCheck:
+# if (Tank.Temperature > tankMaxTemperature)
+l r0 Tank Temperature
+sub r0 r0 273.15
+s db Setting r0
+bgt r0 tankMaxTemperature tankIsTooHot
+j tankMinPressureCheck
+tankIsTooHot:
+s InputReg On 0
+s OutputValve On 0
+s TankCooling On 1
+j done
+
+tankMinPressureCheck:
+# if (Tank.Pressure < tankMinPresssure)
+l r0 Tank Pressure
+div r0 r0 1000
+s db Setting r0
+blt r0 tankMinPresssure tankUnderPressurized
+j mainTankOK
+tankUnderPressurized:
+s InputReg On 1
+s OutputValve On 0
+
+# on filling determine if cooling should also be done
+l r0 Tank Temperature
+sub r0 r0 273.15
+add r0 r0 1
+sge r1 r0 tankMaxTemperature
+s TankCooling On r1
+
+sleep 1
+j tankMinPressureCheck
+
+mainTankOK:
+s OutputValve On 1
+sleep 4
+
+j done
+errorLabel:
+s db error 1
+done:
+sleep 1
+j loop
