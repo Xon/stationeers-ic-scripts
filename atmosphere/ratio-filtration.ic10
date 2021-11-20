@@ -1,12 +1,12 @@
 # activates filtration based on ratios not being desirable
 
 alias Sensor d0
-#alias OxygenFilter d1
-alias NitrousOxideFilter d1
-alias CarbonDioxideFilter d2
-alias NitrogenFilter d3
-alias PollutantFilter d4
-alias VolatilesFilter d5
+#alias O2_Filter d1
+alias N20_Filter d1
+alias CO2_Filter d2
+alias N2_Filter d3
+alias X_Filter d4
+alias H2_Filter d5
 
 define DesiredRatioOxygen 0.2
 define DesiredRatioCarbonDioxide 0.1
@@ -23,60 +23,60 @@ l r0 Sensor RatioOxygen
 bne r0 r0 removeOxygen # Check NaN ratio
 sub r0 DesiredRatioOxygen r0
 bgtz r0 removeOxygen
-s OxygenFilter On 0
+s O2_Filter On 0
 j checkNitrousOxide
 removeOxygen:
-s OxygenFilter On 1
+s O2_Filter On 1
 
 checkNitrousOxide:
 l r0 Sensor RatioNitrousOxide
 bne r0 r0 removeNitrousOxide # Check NaN ratio
-sub r0 DesiredRatioNitrousOxide r0
+sub r0 r0 DesiredRatioNitrousOxide
 bgtz r0 removeNitrousOxide
-s NitrousOxideFilter On 0
+s N20_Filter On 0
 j checkCarbonDioxide
 removeNitrousOxide:
-s NitrousOxideFilter On 1
+s N20_Filter On 1
 
 checkCarbonDioxide:
 l r0 Sensor RatioCarbonDioxide
 bne r0 r0 removeCarbonDioxide # Check NaN ratio
-sub r0 DesiredRatioCarbonDioxide r0
+sub r0 r0 DesiredRatioCarbonDioxide
 bgtz r0 removeCarbonDioxide
-s CarbonDioxideFilter On 0
+s CO2_Filter On 0
 j checkNitrogen
 removeCarbonDioxide:
-s CarbonDioxideFilter On 1
+s CO2_Filter On 1
 
 checkNitrogen:
 l r0 Sensor RatioNitrogen
 bne r0 r0 removeNitrogen # Check NaN ratio
-sub r0 DesiredRatioNitrogen r0
+sub r0 r0 DesiredRatioNitrogen
 bgtz r0 removeNitrogen
-s NitrogenFilter On 0
+s N2_Filter On 0
 j checkPollutant
 removeNitrogen:
-s NitrogenFilter On 1
+s N2_Filter On 1
 
 checkPollutant:
 l r0 Sensor RatioPollutant
 bne r0 r0 removePollutant # Check NaN ratio
-sub r0 DesiredRatioPollutant r0
+sub r0 r0 DesiredRatioPollutant
 bgtz r0 removePollutant
-s PollutantFilter On 0
+s X_Filter On 0
 j checkVolatiles
 removePollutant:
-s PollutantFilter On 1
+s X_Filter On 1
 
 checkVolatiles:
 l r0 Sensor RatioVolatiles
 bne r0 r0 removeVolatiles # Check NaN ratio
-sub r0 DesiredRatioVolatiles r0
+sub r0 r0 DesiredRatioVolatiles
 bgtz r0 removeVolatiles
-s VolatilesFilter On 0
+s H2_Filter On 0
 j done
 removeVolatiles:
-s VolatilesFilter On 1
+s H2_Filter On 1
 
 done:
 yield
