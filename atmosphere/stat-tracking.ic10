@@ -1,0 +1,125 @@
+﻿alias dRadar d0
+alias dLight d1 #diode slide
+alias rVertDir r1
+alias rHorDir r2
+alias rHor r3
+alias rVert r4
+alias rStr r7
+alias rPrevStr r8
+alias rCurSig r10
+alias rPrevSig r11
+move rVertDir -1
+move rHorDir 1
+move rVert 80
+move rHor 0
+main:
+s dLight On 0
+s db Setting 1
+mul r0 20 rHorDir
+add rHor rHor r0
+brgt rVert 30 3
+move rVert 80
+move rVertDir -1
+jal _rangeCheck
+jal _alignDish
+l rCurSig dRadar SignalID
+beqz rCurSig main #no signal, we keep looking
+beq rCurSig rPrevSig main #already scanned, ignoring
+s dLight On 1
+push rVertDir
+push rHorDir
+push rVert
+push rHor
+search_loop:
+jal _vertSeek
+jal _horSeek
+s dLight Setting rStr
+wait_loop:
+l r0 dLight On
+beqz r0 exit_search
+l r0 dRadar SignalStrength
+bge r0 0.96 wait_loop
+j search_loop
+exit_search:
+l rCurSig dRadar SignalID
+move rPrevSig rCurSig
+pop rHor
+pop rVert
+pop rHorDir
+pop rVertDir
+jal _alignDish
+j main
+
+_vertSeek:
+push ra
+s db Setting 2
+l rHor dRadar Horizontal
+l rVert dRadar Vertical
+l rPrevStr dRadar SignalStrength
+sub r0 1 rPrevStr
+mul r0 r0 30
+mul r0 r0 rVertDir
+add rVert rVert r0
+jal _rangeCheck
+jal _alignDish
+l rStr dRadar SignalStrength
+brge rStr rPrevStr 2
+mul rVertDir rVertDir -1
+pop ra
+j ra
+
+_horSeek:
+push ra
+s db Setting 3
+l rHor dRadar Horizontal
+l rVert dRadar Vertical
+l rPrevStr dRadar SignalStrength
+sub r0 1 rPrevStr
+mul r0 r0 30
+mul r0 r0 rHorDir
+add rHor rHor r0
+jal _rangeCheck
+jal _alignDish
+l rStr dRadar SignalStrength
+brge rStr rPrevStr 2
+mul rHorDir rHorDir -1
+pop ra
+j ra
+
+_rangeCheck:
+brgt rHor 0 5
+mul rHorDir rHorDir -1
+s dLight On 0
+move rHor 0
+sub rVert rVert 30
+brlt rHor 360 5
+mul rHorDir rHorDir -1
+s dLight On 0
+move rHor 360
+sub rVert rVert 30
+brgt rVert 0 4
+mul rVertDir rVertDir -1
+s dLight On 0
+move rVert 0
+brle rVert 90 3
+mul rVertDir rVertDir -1
+move rVert 90
+j ra
+
+_alignDish:
+s db Setting 4
+round rVert rVert
+round rHor rHor
+s dRadar Vertical rVert
+s dRadar Horizontal rHor
+alignDishLoop:
+l r5 dRadar Vertical
+l r6 dRadar Horizontal
+round r5 r5
+round r6 r6
+bne r5 rVert alignDishLoop
+bne r6 rHor alignDishLoop
+aligned:
+l rVert dRadar Vertical
+l rHor dRadar Horizontal
+j ra
