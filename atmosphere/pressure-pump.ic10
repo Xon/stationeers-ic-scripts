@@ -1,0 +1,76 @@
+﻿# Fill a connected tank to a soft-limit
+
+alias SensorSrc d0
+alias Pump d1
+
+# validate connections
+l r0 SensorSrc PrefabHash
+l r0 Pump PrefabHash
+
+define pumpVolume 5
+define tankPumpVolume 100
+# in kpa
+define DesiredGasCanisterPressure 7000
+define DesiredGasCanisterSmartPressure 12000
+define DesiredPipePressure 35000
+
+# insertable tanks
+define StructureGasTankStorage 1632165346
+define ItemGasCanisterSmartHash -668314371
+
+loop:
+
+# detect the structure type
+l r0 SensorSrc PrefabHash
+bne r0 StructureGasTankStorage assumeStructure
+
+# read the gas storage tank, and determine limits
+ls r0 SensorSrc 0 Occupied
+beqz r0 done
+ls r0 SensorSrc 0 OccupantHash
+
+ItemGasCanisterSmart:
+bne r0 ItemGasCanisterSmartHash unknownItem
+ls r1 SensorSrc 0 Pressure
+move r2 DesiredGasCanisterSmartPressure
+j waitCanisterEqualize
+
+# Assume a dumb canister (too many hashes)
+unknownItem:
+ls r1 SensorSrc 0 Pressure
+move r2 DesiredGasCanisterPressure
+move r3 tankPumpVolume
+
+waitCanisterEqualize:
+div r1 r1 1000
+move r3 pumpVolume
+s db Setting r1
+s Pump On 0
+sleep 1
+j pressureCheck
+
+assumeStructure:
+l r1 SensorSrc Pressure
+div r1 r1 1000
+move r2 DesiredPipePressure
+
+pressureCheck:
+sub r0 r1 r2
+bltz r0 addGas
+s Pump On 0
+j done
+addGas:
+s Pump Setting r3
+s Pump On 1
+j done
+removeGas:
+
+
+errorLabel:
+s Pump On 0
+s db error 1
+done:
+s db Setting r1
+yield
+j loop
+
