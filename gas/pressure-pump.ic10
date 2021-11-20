@@ -3,10 +3,6 @@
 alias SensorSrc d0
 alias Pump d1
 
-# validate connections
-l r0 SensorSrc PrefabHash
-l r0 Pump PrefabHash
-
 define pumpVolume 5
 define tankPumpVolume 100
 # in kpa
@@ -18,7 +14,14 @@ define DesiredPipePressure 35000
 define StructureGasTankStorage 1632165346
 define ItemGasCanisterSmartHash -668314371
 
+j loop
+deviceSetupError:
+s db error 1
 loop:
+# validate connections
+bdns SensorSrc deviceSetupError
+bdns Pump deviceSetupError
+
 
 # detect the structure type
 l r0 SensorSrc PrefabHash
