@@ -85,7 +85,7 @@ s TankHeating On r1
 yield
 j tankMinPressureCheck
 
-waitForTankPressurization
+waitForTankPressurization:
 sleep 1
 j tankMinPressureCheck
 
