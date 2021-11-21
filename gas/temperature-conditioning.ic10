@@ -6,6 +6,7 @@ alias Tank d0
 alias TankCooling d1
 alias OutputValve d2
 alias InputReg d3
+alias TankHeating d4
 
 # celcius/kpa for temp/pressure
 define tankMinTemperature 18
@@ -31,9 +32,13 @@ s db Setting r0
 blt r0 tankMinTemperature tankIsTooCold
 j tankHotCheck
 tankIsTooCold:
-s InputReg On 1
 s OutputValve On 0
 s TankCooling On 0
+bdns TankHeating heatViaInput
+s TankHeating On 1
+j done
+heatViaInput:
+s InputReg On 1
 j done
 
 tankHotCheck:
@@ -47,6 +52,8 @@ tankIsTooHot:
 s InputReg On 0
 s OutputValve On 0
 s TankCooling On 1
+bdns TankHeating done
+s TankHeating On 0
 j done
 
 tankMinPressureCheck:
@@ -60,13 +67,18 @@ tankUnderPressurized:
 s InputReg On 1
 s OutputValve On 0
 
-# on filling determine if cooling should also be done
+# on filling determine if cooling/heating should also be done
 l r0 Tank Temperature
 sub r0 r0 273.15
 add r0 r0 1
 sge r1 r0 tankMaxTemperature
 s TankCooling On r1
+bdns TankHeating waitForTankPressurization
+sub r0 r0 2
+sle r1 r0 tankMinTemperature
+s TankHeating On r1
 
+waitForTankPressurization
 sleep 1
 j tankMinPressureCheck
 
