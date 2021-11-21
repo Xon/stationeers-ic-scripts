@@ -1,100 +1,112 @@
 ﻿# Using a ballast tank, keep it at the target temp
 # while topping up from an external source
 # external source is assumed to be very hot
-
 alias Tank d0
 alias TankCooling d1
 alias OutputValve d2
 alias InputReg d3
 alias TankHeating d4
-
 # celcius/kpa for temp/pressure
 define tankMinTemperature 18
 define tankMaxTemperature 21
 define tankMinPresssure 200
+define INACTIVE 0
+define WAS_HEATING 1
+define WAS_COOLING 2
 
-j loop
-deviceSetupError:
-s db error 1
+# reset state
+s OutputValve On 0
+s TankCooling On 0
+s InputReg On 0
+bdns TankHeating loop
+s TankHeating On 0
 loop:
-# validate connections
-s db Setting -999
-bdns Tank deviceSetupError
-s db Setting -998
-bdns InputReg deviceSetupError
-s db Setting -997
-bdns OutputValve deviceSetupError
-s db Setting -996
-bdns TankCooling deviceSetupError
 s db Setting r0
+l r0 Tank Temperature
+sub r14 r0 273.15
+s db Setting r14
 
 tankColdCheck:
 # if (Tank.Temperature < tankMinTemperature)
-l r0 Tank Temperature
-sub r0 r0 273.15
-s db Setting r0
-blt r0 tankMinTemperature tankIsTooCold
-j tankHotCheck
-tankIsTooCold:
-s OutputValve On 0
-s TankCooling On 0
-bdns TankHeating heatViaInput
-s TankHeating On 1
-j done
-heatViaInput:
-s InputReg On 1
+bgt r14 tankMinTemperature tankHotCheck
+jal __doHeating
 j done
 
 tankHotCheck:
 # if (Tank.Temperature > tankMaxTemperature)
-l r0 Tank Temperature
-sub r0 r0 273.15
-s db Setting r0
-bgt r0 tankMaxTemperature tankIsTooHot
-j tankMinPressureCheck
-tankIsTooHot:
-s InputReg On 0
-s OutputValve On 0
-s TankCooling On 1
-bdns TankHeating done
-s TankHeating On 0
+blt r14 tankMaxTemperature tankMinPressureCheck
+jal __doCooling
 j done
 
 tankMinPressureCheck:
 # if (Tank.Pressure < tankMinPresssure)
 l r0 Tank Pressure
-div r0 r0 1000
 s db Setting r0
 blt r0 tankMinPresssure tankUnderPressurized
-j mainTankOK
+jal __stopHeatingOrCooling
+jal __checkForOutput
+sleep 4
+j done
+
 tankUnderPressurized:
 s InputReg On 1
-s OutputValve On 0
-
-# cool/heat on fill
-l r0 Tank Temperature
-sub r0 r0 273.15
-add r0 r0 1
-sge r1 r0 tankMaxTemperature
-s TankCooling On r1
-bdns TankHeating waitForTankPressurization
-sub r0 r0 2
-sle r1 r0 tankMinTemperature
-s TankHeating On r1
+jal __checkForOutput
 yield
 j tankMinPressureCheck
 
-waitForTankPressurization:
-sleep 1
-j tankMinPressureCheck
-
-mainTankOK:
-s OutputValve On 1
-sleep 4
-
-j done
 errorLabel:
 s db error 1
+
+__checkForOutput:
+push ra
+add r0 r14 1
+blt r0 tankMinTemperature closeValveDuringTempChange
+sub r0 r14 1
+bgt r0 tankMaxTemperature closeValveDuringTempChange
+openValveDuringTempChange:
+s OutputValve On 1
+closeValveDuringTempChange:
+s OutputValve On 0
+__heatingCooling_prolog:
+pop ra
+j ra
+
+__doHeating:
+push ra
+move r15 WAS_HEATING
+s TankCooling On 0
+bdns TankHeating heatViaInput
+s TankHeating On 1
+j __doHeating_prolog
+heatViaInput:
+s InputReg On 1
+__doHeating_prolog:
+jal __checkForOutput
+pop ra
+j ra
+
+__doCooling:
+push ra
+jal __stopHeatingOrCooling
+move r15 WAS_COOLING
+s TankCooling On 1
+__doCooling_prolog:
+jal __checkForOutput
+pop ra
+j ra
+
+__stopHeatingOrCooling:
+push ra
+move r15 INACTIVE
+s TankCooling On 0
+s InputReg On 0
+bdns TankHeating __stopHeatingOrCooling_prolog
+s TankHeating On 0
+__stopHeatingOrCooling_prolog:
+jal __checkForOutput
+pop ra
+j ra
+
 done:
 sleep 1
 j loop
