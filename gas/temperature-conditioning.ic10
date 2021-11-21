@@ -15,14 +15,18 @@ define tankMinPresssure 200
 
 j loop
 deviceSetupError:
-s db Setting -999
 s db error 1
 loop:
 # validate connections
+s db Setting -999
 bdns Tank deviceSetupError
+s db Setting -998
 bdns InputReg deviceSetupError
+s db Setting -997
 bdns OutputValve deviceSetupError
+s db Setting -996
 bdns TankCooling deviceSetupError
+s db Setting r0
 
 tankColdCheck:
 # if (Tank.Temperature < tankMinTemperature)
@@ -62,7 +66,8 @@ l r0 Tank Pressure
 div r0 r0 1000
 s db Setting r0
 blt r0 tankMinPresssure tankUnderPressurized
-j mainTankOK
+yield
+j loop
 tankUnderPressurized:
 s InputReg On 1
 s OutputValve On 0
@@ -77,6 +82,8 @@ bdns TankHeating waitForTankPressurization
 sub r0 r0 2
 sle r1 r0 tankMinTemperature
 s TankHeating On r1
+yield
+j tankMinPressureCheck
 
 waitForTankPressurization
 sleep 1
