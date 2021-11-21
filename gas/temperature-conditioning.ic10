@@ -87,9 +87,11 @@ j ra
 
 __doCooling:
 push ra
-jal __stopHeatingOrCooling
 move r15 WAS_COOLING
 s TankCooling On 1
+s InputReg On 0
+bdns TankHeating __doCooling_prolog
+s TankHeating On 0
 __doCooling_prolog:
 jal __checkForOutput
 pop ra
