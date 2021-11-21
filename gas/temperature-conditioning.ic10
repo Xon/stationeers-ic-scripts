@@ -65,6 +65,7 @@ sub r0 r14 1
 bgt r0 tankMaxTemperature closeValveDuringTempChange
 openValveDuringTempChange:
 s OutputValve On 1
+j __heatingCooling_prolog
 closeValveDuringTempChange:
 s OutputValve On 0
 __heatingCooling_prolog:
