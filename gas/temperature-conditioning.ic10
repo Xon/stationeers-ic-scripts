@@ -30,27 +30,26 @@ tankColdCheck:
 # if (Tank.Temperature < tankMinTemperature)
 bgt r14 tankMinTemperature tankHotCheck
 jal __doHeating
-j done
+j done_fast
 
 tankHotCheck:
 # if (Tank.Temperature > tankMaxTemperature)
 blt r14 tankMaxTemperature tankMinPressureCheck
 jal __doCooling
-j done
+j done_sleep
 
 tankMinPressureCheck:
 # if (Tank.Pressure < tankMinPresssure)
 l r0 Tank Pressure
 s db Setting r0
 blt r0 tankMinPresssure tankUnderPressurized
-jal __stopHeatingOrCooling
 jal __checkForOutput
-sleep 4
-j done
+jal __stopHeatingOrCooling
+j done_sleep
 
 tankUnderPressurized:
-s InputReg On 1
 jal __checkForOutput
+s InputReg On 1
 yield
 j tankMinPressureCheck
 
@@ -106,10 +105,12 @@ s InputReg On 0
 bdns TankHeating __stopHeatingOrCooling_prolog
 s TankHeating On 0
 __stopHeatingOrCooling_prolog:
-jal __checkForOutput
 pop ra
 j ra
 
-done:
+done_fast:
+yield 
+j loop
+done_sleep:
 sleep 1
 j loop
