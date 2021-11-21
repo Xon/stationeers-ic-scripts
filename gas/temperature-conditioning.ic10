@@ -7,6 +7,8 @@ alias OutputValve d2
 alias InputReg d3
 alias TankHeating d4
 # celcius/kpa for temp/pressure
+define outputAtMinTemperature 17
+define outputAtMaxTemperature 22
 define tankMinTemperature 18
 define tankMaxTemperature 21
 define tankMinPresssure 200
@@ -58,10 +60,8 @@ s db error 1
 
 __checkForOutput:
 push ra
-add r0 r14 1
-blt r0 tankMinTemperature closeValveDuringTempChange
-sub r0 r14 1
-bgt r0 tankMaxTemperature closeValveDuringTempChange
+blt r14 outputAtMinTemperature closeValveDuringTempChange
+bgt r14 outputAtMaxTemperature closeValveDuringTempChange
 openValveDuringTempChange:
 s OutputValve On 1
 j __heatingCooling_prolog
