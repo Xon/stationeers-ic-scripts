@@ -10,7 +10,7 @@ alias TankHeating d4
 
 # celcius/kpa for temp/pressure
 define tankMinTemperature 18
-define tankMaxTemperature 20
+define tankMaxTemperature 21
 define tankMinPresssure 200
 
 j loop
@@ -66,13 +66,12 @@ l r0 Tank Pressure
 div r0 r0 1000
 s db Setting r0
 blt r0 tankMinPresssure tankUnderPressurized
-yield
-j loop
+j mainTankOK
 tankUnderPressurized:
 s InputReg On 1
 s OutputValve On 0
 
-# on filling determine if cooling/heating should also be done
+# cool/heat on fill
 l r0 Tank Temperature
 sub r0 r0 273.15
 add r0 r0 1
