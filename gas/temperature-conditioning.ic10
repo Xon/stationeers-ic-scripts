@@ -109,7 +109,7 @@ pop ra
 j ra
 
 done_fast:
-yield 
+yield
 j loop
 done_sleep:
 sleep 1

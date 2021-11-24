@@ -1,5 +1,5 @@
-# Temperature independent fuel mixing. 
-# With output an pressure limit 
+# Temperature independent fuel mixing.
+# With output an pressure limit
 # Expects O2 to be on Input 1 (ie straight)
 
 alias mixer d0
