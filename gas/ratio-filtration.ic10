@@ -9,8 +9,8 @@ alias X_Filter d4
 alias H2_Filter d5
 
 define DesiredRatioOxygen 0.2
-define DesiredRatioCarbonDioxide 0.1
-define DesiredRatioNitrogen 0.7
+define DesiredRatioCarbonDioxide 0.04
+define DesiredRatioNitrogen 0.66
 define DesiredRatioPollutant 0
 define DesiredRatioVolatiles 0
 define DesiredRatioNitrousOxide 0
