@@ -1,0 +1,53 @@
+﻿# Run a machine till a tank/pipe hits some soft-limit
+
+alias Sensor1 d0
+alias theMachine d1
+alias Sensor2 d2
+
+# in kpa
+define DesiredMinPressure1 60
+define DesiredMaxPressure1 100
+define DesiredMinPressure2 60
+define DesiredMaxPressure2 100
+
+alias sensor
+loop:
+# validate connections
+bdns theMachine noMachineLabel
+bdns Sensor1 noSensorLabel
+bdns Sensor2 singleSensor
+
+multiSensor:
+l r1 Sensor1 Pressure
+l r2 Sensor1 Pressure
+bgt r1 DesiredMaxPressure1 stopMachine
+bgt r2 DesiredMaxPressure2 stopMachine
+blt r1 DesiredMinPressure1 startMachine
+blt r2 DesiredMinPressure2 startMachine
+j done
+
+singleSensor:
+l r1 Sensor1 Pressure
+bgt r1 DesiredMaxPressure1 stopMachine
+blt r1 DesiredMinPressure1 startMachine
+j done
+
+stopMachine:
+s theMachine On 0
+j done
+startMachine:
+s theMachine On 1
+j done
+
+noMachineLabel:
+s db Setting -998
+s db error 1
+noSensorLabel:
+s theMachine On 0
+s db Setting -998
+s db error 1
+done:
+s db Setting r1
+yield
+j loop
+
