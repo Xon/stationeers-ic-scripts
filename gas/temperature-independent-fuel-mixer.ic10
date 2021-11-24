@@ -1,0 +1,50 @@
+# Temperature independent fuel mixing. 
+# With output an pressure limit 
+# Expects O2 to be on Input 1 (ie straight)
+
+alias mixer d0
+alias O2_Sensor d1
+alias H2_Sensor d2
+alias Fuel_Sensor d3
+
+# in kpa/%
+define DesiredMinPressure 20
+define DesiredMaxPressure 100
+
+alias fuelPressure r15
+alias mixerRatio r14
+alias o2_temp r13
+alias h2_temp r12
+move mixerRatio 0.33
+
+loop:
+
+l fuelPressure Fuel_Sensor Pressure
+bgt fuelPressure DesiredMaxPressure stopMixer
+blt fuelPressure DesiredMinPressure startMixer
+j done
+
+startMixer:
+l o2_temp O2_Sensor Temperature
+l h2_temp H2_Sensor Temperature
+
+# https://stationeers-wiki.com/Temperature_independent_fuel_mixing
+# gas mixer setting = 100 / ( 1 + Temp.oxygen/(2*Temp.volatiles) )
+mul r0 2 h2_temp
+move r1 o2_temp
+div r0 r1 r0
+add r0 r0 1
+div mixerRatio 100 r0
+
+s mixer Setting mixerRatio
+s db Setting mixerRatio
+s mixer On 1
+j done
+stopMixer:
+s db Setting -1
+s mixer On 0
+j done
+
+done:
+yield
+j loop
