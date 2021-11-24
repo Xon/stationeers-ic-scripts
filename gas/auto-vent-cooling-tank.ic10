@@ -1,0 +1,63 @@
+﻿# Dump a connected tank when it gets too hot (or too full) and pull from outside
+
+alias Tank d0
+alias ActiveVent d1
+alias heatPump d2
+alias heatPumpSensor d3
+
+# in kpa/celcius
+define tankFillPressure 5000
+define tankMinPressure 15000
+define tankMaxPressure 35000
+define tankMinTemperature 10
+define tankMaxTemperature 35
+
+define ventMode 0
+define fillMode 1
+
+loop:
+l r0 Tank Temperature
+sub r14 r0 273.15
+s db Setting r14
+l r1 Tank Pressure
+
+j tankPressureCheck
+# todo heat via a heat source
+tempCheck:
+blt r14 tankMinTemperature startHeatTank
+bgt r14 tankMaxTemperature purgeTank
+j tankPressureCheck
+purgeTank:
+s ActiveVent Mode ventMode
+s ActiveVent PressureExternal 50000
+s ActiveVent On 1
+j done
+startHeatTank:
+bgt r1 tankMinPressure stopTankVent
+s heatPump On 0
+j done
+
+tankPressureCheck:
+blt r1 tankFillPressure fillTank
+bgt r1 tankMaxPressure startTankVent
+bgt r1 tankMinPressure stopTankVent
+j done
+fillTank:
+s ActiveVent Mode fillMode
+s ActiveVent PressureInternal tankMaxPressure
+s ActiveVent On 1
+s heatPump On 0
+j done
+stopTankVent:
+s ActiveVent On 0
+j done
+startTankVent:
+s ActiveVent Mode ventMode
+s ActiveVent PressureExternal 50000
+s ActiveVent On 1
+j done
+
+done:
+s db Setting r1
+yield
+j loop
