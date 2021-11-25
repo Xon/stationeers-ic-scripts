@@ -1,0 +1,79 @@
+﻿# Locks a room on too high temps
+
+alias powerOffDevice d0
+alias roomSensor d1
+alias door d2
+alias coolingDevice d3
+
+define roomSafeTemperature 24
+define emergencyShutoff 9000
+
+alias roomTemp r15
+alias forceShutdown r14
+move forceShutdown 0
+loop:
+# validate connections
+bdns powerOffDevice noPowerOffDevice
+bdns roomSensor noRoomSensor
+
+l r0 roomSensor Temperature
+sub roomTemp r0 273.15
+s db Setting roomTemp
+bgt roomTemp emergencyShutoff doEmergencyShutoff
+bgt roomTemp roomSafeTemperature roomUnsafe
+
+roomSafe:
+bdseal door __unlockRoom
+bdseal coolingDevice __stopCooling
+beqz forcedShutdown done
+move forcedShutdown 0
+s powerOffDevice On 1
+j done
+doEmergencyShutoff:
+move forcedShutdown 1
+s powerOffDevice On 0
+roomUnsafe:
+bdseal door __lockRoom
+bdseal coolingDevice __startCooling
+j done
+
+__startCooling:
+push ra
+s coolingDevice On 1
+pop ra
+j ra
+
+__stopCooling:
+push ra
+s coolingDevice On 0
+pop ra
+j ra
+
+__unlockRoom:
+push ra
+s door Lock 0
+s door Mode 0
+pop ra
+j ra
+
+__lockRoom:
+push ra
+s door On 1
+s door Lock 1
+s door Mode 1
+s door Open 0
+pop ra
+j ra
+
+errorLabel:
+s db error 1
+noPowerOffDevice:
+s db Setting -999
+s db error 1
+noRoomSensor:
+s powerOffDevice On 0
+s db Setting -999
+s db error 1
+done:
+yield
+j loop
