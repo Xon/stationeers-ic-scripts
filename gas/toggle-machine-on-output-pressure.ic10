@@ -3,6 +3,7 @@
 alias Sensor1 d0
 alias theMachine d1
 alias Sensor2 d2
+alias switch d3
 
 # in kpa
 define DesiredMinPressure1 60
@@ -12,6 +13,12 @@ define DesiredMaxPressure2 100
 
 alias sensor
 loop:
+# override switch
+bdns switch skipSwitchControl
+l r0 switch Setting
+bge r0 1 stopMachine
+
+skipSwitchControl:
 # validate connections
 bdns theMachine noMachineLabel
 bdns Sensor1 noSensorLabel
@@ -50,4 +57,3 @@ done:
 s db Setting r1
 yield
 j loop
-
