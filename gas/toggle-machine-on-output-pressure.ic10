@@ -11,12 +11,11 @@ define DesiredMaxPressure1 100
 define DesiredMinPressure2 60
 define DesiredMaxPressure2 100
 
-alias sensor
 loop:
 # override switch
 bdns switch skipSwitchControl
 l r0 switch Setting
-bge r0 1 stopMachine
+beqz r0 stopMachine
 
 skipSwitchControl:
 # validate connections
@@ -40,9 +39,11 @@ blt r1 DesiredMinPressure1 startMachine
 j done
 
 stopMachine:
+move r15 0
 s theMachine On 0
 j done
 startMachine:
+move r15 1
 s theMachine On 1
 j done
 
@@ -54,6 +55,6 @@ s theMachine On 0
 s db Setting -998
 s db error 1
 done:
-s db Setting r1
+s db Setting r15
 yield
 j loop
