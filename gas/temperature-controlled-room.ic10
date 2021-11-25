@@ -9,8 +9,8 @@ define roomSafeTemperature 24
 define emergencyShutoff 9000
 
 alias roomTemp r15
-alias forceShutdown r14
-move forceShutdown 0
+alias forcedShutdown r14
+move forcedShutdown 0
 loop:
 # validate connections
 bdns powerOffDevice noPowerOffDevice
