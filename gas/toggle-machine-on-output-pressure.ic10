@@ -25,7 +25,7 @@ bdns Sensor2 singleSensor
 
 multiSensor:
 l r1 Sensor1 Pressure
-l r2 Sensor1 Pressure
+l r2 Sensor2 Pressure
 bgt r1 DesiredMaxPressure1 stopMachine
 bgt r2 DesiredMaxPressure2 stopMachine
 blt r1 DesiredMinPressure1 startMachine
