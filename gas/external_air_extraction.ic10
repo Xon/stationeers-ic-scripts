@@ -19,14 +19,14 @@ yield
 j loop
 
 startIntake:
+s theMachine On 1
 s externalVent PressureInternal DesiredIntakePressure
 s externalVent Mode 1
 s externalVent Lock 1
 s externalVent On 1
-s theMachine On 1
 j done
 stopIntake:
-s theMachine On 1
 s externalVent On 0
 s externalVent Lock 0
+s theMachine On 0
 j done
