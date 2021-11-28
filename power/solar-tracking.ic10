@@ -1,0 +1,88 @@
+# This code assumes the following:
+# Daylight Sensor data-port points north
+# Solar Panel data-port points west
+
+alias sensor d0
+alias battery d1
+alias transformer d2
+
+alias sunsetGracePeriod r15
+
+define SolarPanelHash -539224550
+define HeavSolarPanelHash -1545574413
+
+define sunriseVertical 180
+define sunriseHorizontal -90
+define sunsetGraceTime 60
+define minChargeRatio 0.05
+define maxChargeRatio 0.1
+
+move sunsetGracePeriod 0
+loop:
+jal checkBatteryForExport
+
+l r0 sensor Activate
+beqz r0 sundown
+
+move sunsetGracePeriod 1
+
+l r0 sensor Vertical
+div r0 r0 1.5
+add r0 50 r0
+sb SolarPanelHash Vertical r0
+sb HeavSolarPanelHash Vertical r0
+
+l r0 sensor Horizontal
+sb SolarPanelHash Horizontal r0
+sb HeavSolarPanelHash Horizontal r0
+
+yield
+j loop
+
+sundown:
+beqz sunsetGracePeriod waitForDawn
+push sunsetGraceTime
+jal sleepWithBatteryCheck
+move sunsetGracePeriod 0
+waitForDawn:
+sb SolarPanelHash Vertical sunriseVertical
+sb HeavSolarPanelHash Vertical sunriseVertical
+sb SolarPanelHash Horizontal sunriseHorizontal
+sb HeavSolarPanelHash Horizontal sunriseHorizontal
+
+push 2
+jal sleepWithBatteryCheck
+j loop
+
+checkBatteryForExport:
+push ra
+push r0
+l r0 battery Ratio
+bltal r0 minChargeRatio disablePowerExport
+bgtal r0 maxChargeRatio enablePowerExport
+pop r0
+pop ra
+j ra
+
+disablePowerExport:
+s transformer On 0
+j ra
+
+enablePowerExport:
+s transformer On 1
+j ra
+
+sleepWithBatteryCheck:
+pop r0
+push ra
+jal checkBatteryForExport
+bltz r0 sleepWithBatteryCheck_prolog
+# yield is ~0.5 seconds
+sleepLoop:
+sub r0 r0 0.5
+yield
+jal checkBatteryForExport
+bgtz r0 sleepLoop
+sleepWithBatteryCheck_prolog:
+pop ra
+j ra
