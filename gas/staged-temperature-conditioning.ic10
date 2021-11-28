@@ -1,0 +1,57 @@
+﻿# vulcan day is significantly hotter than night
+# pump coolant into a radiator ray during night, and out during the day
+# a valve is used to near instantly fill the radiator
+# while a pump is used to extract gas once it is too hot
+
+alias air_sensor d0
+alias pump d1
+alias valve d2
+alias pipe_sensor d3
+
+# celcius
+define airMinTemperature 160
+define airMaxTemperature 300
+
+alias stoppedPump r15
+move stoppedPump 0
+loop:
+
+l r0 air_sensor Temperature
+sub r14 r0 273.15
+bltal r14 airMinTemperature startRadiatorCooling
+bgtal r14 airMaxTemperature stopRadiatorCooling
+
+l r0 pump On
+beqz r0 done
+
+l r0 pipe_sensor TotalMoles
+blezal r0 stopPump
+bneal r0 r0 stopPump # Check NaN
+
+done:
+yield
+j loop
+
+startRadiatorCooling:
+move stoppedPump 1
+s db Setting 1
+s valve On 1
+s pump On 0
+j ra
+
+stopRadiatorCooling:
+s db Setting 0
+s valve On 0
+bnez stoppedPump stopRadiatorCooling_prolog
+l r0 pump Maximum
+s pump Setting r0
+s pump On 1
+yield
+stopRadiatorCooling_prolog:
+j ra
+
+stopPump:
+move stoppedPump 1
+s pump Setting 10
+s pump On 0
+j ra
