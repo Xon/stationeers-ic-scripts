@@ -1,0 +1,32 @@
+﻿# Pull in external air, and filter it till the output hits some desired pressure
+alias tank d0
+alias theMachine d1
+alias externalVent  d2
+
+# in kpa
+define DesiredIntakePressure 20000
+define DesiredMinTankPressure 15000
+define DesiredMaxTankPressure 20000
+
+loop:
+
+l r0 tank Pressure
+bgt r0 DesiredMaxTankPressure stopIntake
+blt r0 DesiredMinTankPressure startIntake
+
+done:
+yield
+j loop
+
+startIntake:
+s externalVent PressureInternal DesiredIntakePressure
+s externalVent Mode 1
+s externalVent Lock 1
+s externalVent On 1
+s theMachine On 1
+j done
+stopIntake:
+s theMachine On 1
+s externalVent On 0
+s externalVent Lock 0
+j done
