@@ -9,17 +9,29 @@ alias valve d2
 alias pipe_sensor d3
 
 # celcius
-define airMinTemperature 160
-define airMaxTemperature 300
+define airTemperatureCooling 180
+define airTemperatureHeating 160
 
 alias stoppedPump r15
-move stoppedPump 0
-loop:
+alias previousAirTemp r14
+alias currentAirTemp r13
 
+move stoppedPump 0
 l r0 air_sensor Temperature
-sub r14 r0 273.15
-bltal r14 airMinTemperature startRadiatorCooling
-bgtal r14 airMaxTemperature stopRadiatorCooling
+sub previousAirTemp r0 273.15
+
+loop:
+l r0 air_sensor Temperature
+sub currentAirTemp r0 273.15
+
+blt currentAirTemp previousAirTemp airCooling
+airHeating:
+bgtal currentAirTemp airTemperatureHeating stopRadiatorCooling
+j tempCheckDone
+airCooling:
+bltal currentAirTemp airTemperatureCooling startRadiatorCooling
+tempCheckDone:
+move previousAirTemp currentAirTemp
 
 l r0 pump On
 beqz r0 done
@@ -52,6 +64,5 @@ j ra
 
 stopPump:
 move stoppedPump 1
-s pump Setting 10
 s pump On 0
 j ra
