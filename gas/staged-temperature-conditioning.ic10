@@ -9,29 +9,29 @@ alias valve d2
 alias pipe_sensor d3
 
 # celcius
-define airTemperatureCooling 180
-define airTemperatureHeating 160
+define airTempCooling 180
+define airTempHeating 160
 
 alias stoppedPump r15
-alias previousAirTemp r14
-alias currentAirTemp r13
+alias oldAirTemp r14
+alias airTemp r13
 
 move stoppedPump 0
 l r0 air_sensor Temperature
-sub previousAirTemp r0 273.15
+sub oldAirTemp r0 273.15
 
 loop:
 l r0 air_sensor Temperature
-sub currentAirTemp r0 273.15
+sub airTemp r0 273.15
 
-blt currentAirTemp previousAirTemp airCooling
+blt airTemp oldAirTemp airCooling
 airHeating:
-bgtal currentAirTemp airTemperatureHeating stopRadiatorCooling
+bgtal airTemp airTempHeating stopRadiatorCooling
 j tempCheckDone
 airCooling:
-bltal currentAirTemp airTemperatureCooling startRadiatorCooling
+bltal airTemp airTempCooling startRadiatorCooling
 tempCheckDone:
-move previousAirTemp currentAirTemp
+move oldAirTemp airTemp
 
 l r0 pump On
 beqz r0 done
