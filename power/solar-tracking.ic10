@@ -1,21 +1,25 @@
 # This code assumes the following:
 # Daylight Sensor data-port points north
 # Solar Panel data-port points west
+# optional multi-battery support
 
 alias sensor d0
-alias battery d1
 alias transformer d2
 
 alias sunsetGracePeriod r15
 
 define SolarPanelHash -539224550
-define HeavSolarPanelHash -1545574413
+define HeavySolarPanelHash -1545574413
+
+define BatteryHash -400115994
+define BigBatteryHash -1388288459
+
 
 define sunriseVertical 180
 define sunriseHorizontal -90
 define sunsetGraceTime 60
-define minChargeRatio 0.05
-define maxChargeRatio 0.1
+define minChargeLevel 1
+define maxChargeLevel 3
 
 move sunsetGracePeriod 0
 loop:
@@ -30,11 +34,11 @@ l r0 sensor Vertical
 div r0 r0 1.5
 add r0 50 r0
 sb SolarPanelHash Vertical r0
-sb HeavSolarPanelHash Vertical r0
+sb HeavySolarPanelHash Vertical r0
 
 l r0 sensor Horizontal
 sb SolarPanelHash Horizontal r0
-sb HeavSolarPanelHash Horizontal r0
+sb HeavySolarPanelHash Horizontal r0
 
 yield
 j loop
@@ -46,9 +50,9 @@ jal sleepWithBatteryCheck
 move sunsetGracePeriod 0
 waitForDawn:
 sb SolarPanelHash Vertical sunriseVertical
-sb HeavSolarPanelHash Vertical sunriseVertical
+sb HeavySolarPanelHash Vertical sunriseVertical
 sb SolarPanelHash Horizontal sunriseHorizontal
-sb HeavSolarPanelHash Horizontal sunriseHorizontal
+sb HeavySolarPanelHash Horizontal sunriseHorizontal
 
 push 2
 jal sleepWithBatteryCheck
@@ -57,9 +61,10 @@ j loop
 checkBatteryForExport:
 push ra
 push r0
-l r0 battery Ratio
-bltal r0 minChargeRatio disablePowerExport
-bgtal r0 maxChargeRatio enablePowerExport
+lb r0 BatteryHash Mode 0
+bltal r0 minChargeLevel disablePowerExport
+bgtal r0 maxChargeLevel enablePowerExport
+checkBatteryForExport_prolog:
 pop r0
 pop ra
 j ra
