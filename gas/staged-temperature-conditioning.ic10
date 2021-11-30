@@ -55,6 +55,7 @@ stopRadiatorCooling:
 s db Setting 0
 s valve On 0
 bnez stoppedPump stopRadiatorCooling_prolog
+yield
 l r0 pump Maximum
 s pump Setting r0
 s pump On 1
