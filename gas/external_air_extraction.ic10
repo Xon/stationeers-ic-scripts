@@ -2,9 +2,10 @@
 alias tank d0
 alias theMachine d1
 alias externalVent  d2
+alias daySensor d3
 
 # in kpa
-define DesiredIntakePressure 20000
+define DesiredIntakePressure 1000
 define DesiredMinTankPressure 15000
 define DesiredMaxTankPressure 20000
 
@@ -13,6 +14,11 @@ loop:
 l r0 tank Pressure
 bgt r0 DesiredMaxTankPressure stopIntake
 blt r0 DesiredMinTankPressure startIntake
+
+# do not run during day-time
+bdns daySensor done
+l r0 daySensor Activate
+beq r0 1 stopIntake
 
 done:
 yield
