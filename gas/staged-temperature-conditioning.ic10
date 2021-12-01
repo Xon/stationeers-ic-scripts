@@ -24,29 +24,30 @@ loop:
 l r0 air_sensor Temperature
 sub airTemp r0 273.15
 
+l r1 pipe_sensor TotalMoles
+s db Setting r1
+
 blt airTemp oldAirTemp airCooling
 airHeating:
 bgtal airTemp airTempHeating stopRadiatorCooling
+
+l r0 pump On
+beqz r0 tempCheckDone
+blezal r1 stopPump
+bneal r1 r1 stopPump # Check NaN
+
 j tempCheckDone
 airCooling:
 bltal airTemp airTempCooling startRadiatorCooling
 tempCheckDone:
 move oldAirTemp airTemp
 
-l r0 pump On
-beqz r0 done
-
-l r0 pipe_sensor TotalMoles
-s db Setting r0
-blezal r0 stopPump
-bneal r0 r0 stopPump # Check NaN
-
 done:
 yield
 j loop
 
 startRadiatorCooling:
-move stoppedPump 1
+move stoppedPump 0
 s valve On 1
 s pump On 0
 j ra
