@@ -37,6 +37,7 @@ l r0 pump On
 beqz r0 done
 
 l r0 pipe_sensor TotalMoles
+s db Setting r0
 blezal r0 stopPump
 bneal r0 r0 stopPump # Check NaN
 
@@ -46,13 +47,11 @@ j loop
 
 startRadiatorCooling:
 move stoppedPump 1
-s db Setting 1
 s valve On 1
 s pump On 0
 j ra
 
 stopRadiatorCooling:
-s db Setting 0
 s valve On 0
 bnez stoppedPump stopRadiatorCooling_prolog
 yield
