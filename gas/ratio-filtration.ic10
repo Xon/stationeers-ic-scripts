@@ -34,16 +34,16 @@ j loop
 
 __checkOxygen:
 push r0
-bdns O2_Filter __checkcheckOxygen_prolog
+bdns O2_Filter __checkOxygen_prolog
 l r0 Sensor RatioOxygen
 bne r0 r0 disableFilterOxygen # Check NaN ratio
 bgt r0 DesiredRatioOxygen removeOxygen
 disableFilterOxygen:
 s O2_Filter On 0
-j __checkcheckOxygen_prolog
+j __checkOxygen_prolog
 removeOxygen:
 s O2_Filter On 1
-__checkcheckOxygen_prolog:
+__checkOxygen_prolog:
 pop r0
 j ra
 
