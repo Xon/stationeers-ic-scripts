@@ -21,7 +21,7 @@ loop:
 l r0 Sensor TotalMoles
 blt r0 minMolesOfGoodGasses nastyGasses
 goodGasses:
-#jal __checkcheckOxygen
+#jal __checkOxygen
 jal __checkCarbonDioxide
 jal __checkNitrogen
 nastyGasses:
@@ -32,9 +32,8 @@ done:
 yield
 j loop
 
-__checkcheckOxygen:
+__checkOxygen:
 push r0
-checkOxygen:
 bdns O2_Filter __checkcheckOxygen_prolog
 l r0 Sensor RatioOxygen
 bne r0 r0 disableFilterOxygen # Check NaN ratio
