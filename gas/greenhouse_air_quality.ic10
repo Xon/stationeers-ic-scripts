@@ -1,0 +1,67 @@
+﻿# Geep a greenhouse at desired pressure an extract excess oxygen
+alias sensor d0
+alias o2_filter d1
+alias co2_vent  d2
+
+define targetMinOxygen 0.01
+define targetMaxOxygen 0.04
+
+define WallCoolerHash -739292323
+define WallHeaterHash 24258244
+
+alias airPressure r14
+alias airTemp r13
+alias airOxygen r12
+
+jal __pressurizeRoom
+loop:
+
+l airPressure sensor Pressure
+bltal airPressure 102 __pressurizeRoom
+
+l r0 sensor Temperature
+sub airTemp r0 273.15
+s db Setting airTemp
+bgtal airTemp 25 __startCoolingRoom
+bltal airTemp 20 __stopCoolingRoom
+#bgtal airTemp 19 __stopHeatingRoom
+#bltal airTemp 17 __startHeatingRoom
+
+l airOxygen sensor RatioOxygen
+bgtal airOxygen targetMaxOxygen __startExtractOxygen
+bltal airOxygen targetMinOxygen __stopExtractOxygen
+
+done:
+yield
+j loop
+
+__startExtractOxygen:
+s o2_filter On 1
+j ra
+
+__stopExtractOxygen:
+s o2_filter On 0
+j ra
+
+__pressurizeRoom:
+s co2_vent PressureExternal 100
+s co2_vent Mode 0
+s co2_vent On 1
+j ra
+
+__startCoolingRoom:
+sb WallCoolerHash On 1
+sb WallHeaterHash On 0
+j ra
+
+__stopCoolingRoom:
+sb WallCoolerHash On 0
+j ra
+
+__startHeatingRoom:
+sb WallHeaterHash On 1
+j ra
+
+__stopHeatingRoom:
+sb WallHeaterHash On 0
+j ra
