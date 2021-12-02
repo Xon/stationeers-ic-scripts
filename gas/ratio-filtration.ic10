@@ -14,30 +14,23 @@ define DesiredRatioNitrogen 0.66
 define DesiredRatioPollutant 0
 define DesiredRatioVolatiles 0
 define DesiredRatioNitrousOxide 0
+define minMolesOfGoodGasses 200
 
 loop:
 
-j checkNitrousOxide
+l r0 Sensor TotalMoles
+blt r0 minMolesOfGoodGasses nastyGasses
+
+j checkCarbonDioxide
 checkOxygen:
 l r0 Sensor RatioOxygen
 bne r0 r0 disableFilterOxygen # Check NaN ratio
 bgt r0 DesiredRatioOxygen removeOxygen
 disableFilterOxygen:
 s O2_Filter On 0
-j checkNitrousOxide
+j checkCarbonDioxide
 removeOxygen:
 s O2_Filter On 1
-
-checkNitrousOxide:
-bdns N20_Filter checkCarbonDioxide
-l r0 Sensor RatioNitrousOxide
-bne r0 r0 disableFilterNitrousOxide # Check NaN ratio
-bgt r0 DesiredRatioNitrousOxide removeNitrousOxide
-disableFilterNitrousOxide:
-s N20_Filter On 0
-j checkCarbonDioxide
-removeNitrousOxide:
-s N20_Filter On 1
 
 checkCarbonDioxide:
 bdns CO2_Filter checkNitrogen
@@ -51,15 +44,27 @@ removeCarbonDioxide:
 s CO2_Filter On 1
 
 checkNitrogen:
-bdns N2_Filter checkPollutant
+bdns N2_Filter checkNitrousOxide
 l r0 Sensor RatioNitrogen
 bne r0 r0 disableFilterNitrogen # Check NaN ratio
 bgt r0 DesiredRatioNitrogen removeNitrogen
 disableFilterNitrogen:
 s N2_Filter On 0
-j checkPollutant
+j checkNitrousOxide
 removeNitrogen:
 s N2_Filter On 1
+
+nastyGasses:
+checkNitrousOxide:
+bdns N20_Filter checkPollutant
+l r0 Sensor RatioNitrousOxide
+bne r0 r0 disableFilterNitrousOxide # Check NaN ratio
+bgt r0 DesiredRatioNitrousOxide removeNitrousOxide
+disableFilterNitrousOxide:
+s N20_Filter On 0
+j checkPollutant
+removeNitrousOxide:
+s N20_Filter On 1
 
 checkPollutant:
 bdns X_Filter checkVolatiles
