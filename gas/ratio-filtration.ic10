@@ -20,74 +20,105 @@ loop:
 
 l r0 Sensor TotalMoles
 blt r0 minMolesOfGoodGasses nastyGasses
+goodGasses:
+#jal __checkcheckOxygen
+jal __checkCarbonDioxide
+jal __checkNitrogen
+nastyGasses:
+jal __checkNitrousOxide
+jal __checkPollutant
+jal __checkVolatiles
+done:
+yield
+j loop
 
-j checkCarbonDioxide
+__checkcheckOxygen:
+push r0
 checkOxygen:
+bdns O2_Filter __checkcheckOxygen_prolog
 l r0 Sensor RatioOxygen
 bne r0 r0 disableFilterOxygen # Check NaN ratio
 bgt r0 DesiredRatioOxygen removeOxygen
 disableFilterOxygen:
 s O2_Filter On 0
-j checkCarbonDioxide
+j __checkcheckOxygen_prolog
 removeOxygen:
 s O2_Filter On 1
+__checkcheckOxygen_prolog:
+pop r0
+j ra
 
-checkCarbonDioxide:
-bdns CO2_Filter checkNitrogen
+__checkCarbonDioxide:
+push r0
+bdns CO2_Filter __checkCarbonDioxide_prolog
 l r0 Sensor RatioCarbonDioxide
 bne r0 r0 disableFilterCarbonDioxide # Check NaN ratio
 bgt r0 DesiredRatioCarbonDioxide removeCarbonDioxide
 disableFilterCarbonDioxide:
 s CO2_Filter On 0
-j checkNitrogen
+j __checkCarbonDioxide_prolog
 removeCarbonDioxide:
 s CO2_Filter On 1
+__checkCarbonDioxide_prolog:
+pop r0
+j ra
 
-checkNitrogen:
-bdns N2_Filter checkNitrousOxide
+__checkNitrogen:
+push r0
+bdns N2_Filter __checkNitrogen_prolog
 l r0 Sensor RatioNitrogen
 bne r0 r0 disableFilterNitrogen # Check NaN ratio
 bgt r0 DesiredRatioNitrogen removeNitrogen
 disableFilterNitrogen:
 s N2_Filter On 0
-j checkNitrousOxide
+j __checkNitrogen_prolog
 removeNitrogen:
 s N2_Filter On 1
+__checkNitrogen_prolog:
+pop r0
+j ra
 
-nastyGasses:
-checkNitrousOxide:
-bdns N20_Filter checkPollutant
+__checkNitrousOxide:
+push r0
+bdns N20_Filter __checkNitrousOxide_prolog
 l r0 Sensor RatioNitrousOxide
 bne r0 r0 disableFilterNitrousOxide # Check NaN ratio
 bgt r0 DesiredRatioNitrousOxide removeNitrousOxide
 disableFilterNitrousOxide:
 s N20_Filter On 0
-j checkPollutant
+j __checkNitrousOxide_prolog
 removeNitrousOxide:
 s N20_Filter On 1
+__checkNitrousOxide_prolog:
+pop r0
+j ra
 
-checkPollutant:
-bdns X_Filter checkVolatiles
+__checkPollutant:
+push r0
+bdns X_Filter __checkPollutant_prolog
 l r0 Sensor RatioPollutant
 bne r0 r0 disableFilterPollutant # Check NaN ratio
-bgt r0 DesiredRatioPollutant removePollutant
+bgt r0 DesiredRatioVolatiles removePollutant
 disableFilterPollutant:
 s X_Filter On 0
-j checkVolatiles
+j __checkPollutant_prolog
 removePollutant:
 s X_Filter On 1
+__checkPollutant_prolog:
+pop r0
+j ra
 
-checkVolatiles:
-bdns H2_Filter done
+__checkVolatiles:
+push r0
+bdns H2_Filter __checkVolatiles_prolog
 l r0 Sensor RatioVolatiles
 bne r0 r0 disableFilterVolatiles # Check NaN ratio
 bgt r0 DesiredRatioVolatiles removeVolatiles
 disableFilterVolatiles:
 s H2_Filter On 0
-j done
+j __checkVolatiles_prolog
 removeVolatiles:
 s H2_Filter On 1
-
-done:
-yield
-j loop
+__checkVolatiles_prolog:
+pop r0
+j ra
