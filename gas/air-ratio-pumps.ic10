@@ -1,0 +1,68 @@
+﻿# activates filtration based on ratios not being desirable
+
+alias Sensor d0
+alias O2_Pump d1
+alias CO2_Pump d2
+alias N2_Pump d3
+
+define DesiredRatioOxygen 0.2
+define DesiredRatioCarbonDioxide 0.04
+define DesiredRatioNitrogen 0.66
+define maxPressure 30000
+
+loop:
+
+l r0 Sensor Pressure
+s db Setting r0
+bgt r0 maxPressure done
+jal __checkOxygen
+jal __checkCarbonDioxide
+jal __checkNitrogen
+done:
+yield
+j loop
+
+__checkOxygen:
+push r0
+bdns O2_Pump __checkOxygen_prolog
+l r0 Sensor RatioOxygen
+bne r0 r0 addOxygen # Check NaN ratio
+blt r0 DesiredRatioOxygen addOxygen
+disablePumpOxygen:
+s O2_Pump On 0
+j __checkOxygen_prolog
+addOxygen:
+s O2_Pump On 1
+__checkOxygen_prolog:
+pop r0
+j ra
+
+__checkCarbonDioxide:
+push r0
+bdns CO2_Pump __checkCarbonDioxide_prolog
+l r0 Sensor RatioCarbonDioxide
+bne r0 r0 addCarbonDioxide # Check NaN ratio
+blt r0 DesiredRatioCarbonDioxide addCarbonDioxide
+disablePumpCarbonDioxide:
+s CO2_Pump On 0
+j __checkCarbonDioxide_prolog
+addCarbonDioxide:
+s CO2_Pump On 1
+__checkCarbonDioxide_prolog:
+pop r0
+j ra
+
+__checkNitrogen:
+push r0
+bdns N2_Pump __checkNitrogen_prolog
+l r0 Sensor RatioNitrogen
+bne r0 r0 addNitrogen # Check NaN ratio
+blt r0 DesiredRatioNitrogen addNitrogen
+disablePumpNitrogen:
+s N2_Pump On 0
+j __checkNitrogen_prolog
+addNitrogen:
+s N2_Pump On 1
+__checkNitrogen_prolog:
+pop r0
+j ra
