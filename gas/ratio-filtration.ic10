@@ -14,12 +14,12 @@ define DesiredRatioNitrogen 0.66
 define DesiredRatioPollutant 0
 define DesiredRatioVolatiles 0
 define DesiredRatioNitrousOxide 0
-define minMolesOfGoodGasses 200
+define minPressureOfGoodGasses 2000
 
 loop:
 
-l r0 Sensor TotalMoles
-blt r0 minMolesOfGoodGasses nastyGasses
+l r0 Sensor Pressure
+blt r0 minPressureOfGoodGasses nastyGasses
 goodGasses:
 #jal __checkOxygen
 jal __checkCarbonDioxide
