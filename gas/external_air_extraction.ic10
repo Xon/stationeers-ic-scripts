@@ -11,15 +11,19 @@ define DesiredMaxTankPressure 20000
 
 loop:
 
-l r0 tank Pressure
-bgt r0 DesiredMaxTankPressure stopIntake
-blt r0 DesiredMinTankPressure startIntake
-
 # do not run during day-time
 bdns daySensor done
 l r0 daySensor Activate
-beq r0 1 stopIntake
+s db Setting r0
+beq r0 1 dayTime
 
+l r0 tank Pressure
+bgt r0 DesiredMaxTankPressure stopIntake
+blt r0 DesiredMinTankPressure startIntake
+j done
+
+dayTime:
+j stopIntake
 done:
 yield
 j loop
