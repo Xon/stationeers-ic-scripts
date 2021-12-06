@@ -12,11 +12,11 @@ define DesiredMaxTankPressure 20000
 loop:
 
 # do not run during day-time
-bdns daySensor done
+bdns daySensor pressureCheck
 l r0 daySensor Activate
-s db Setting r0
 beq r0 1 dayTime
 
+pressureCheck:
 l r0 tank Pressure
 bgt r0 DesiredMaxTankPressure stopIntake
 blt r0 DesiredMinTankPressure startIntake
@@ -29,6 +29,7 @@ yield
 j loop
 
 startIntake:
+s db Setting 1
 s theMachine On 1
 s externalVent PressureInternal DesiredIntakePressure
 s externalVent Mode 1
@@ -36,6 +37,7 @@ s externalVent Lock 1
 s externalVent On 1
 j done
 stopIntake:
+s db Setting 0
 s externalVent On 0
 s externalVent Lock 0
 s theMachine On 0
