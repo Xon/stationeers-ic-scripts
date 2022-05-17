@@ -1,0 +1,48 @@
+﻿# Pull in external air, and filter it till the output hits some desired pressure
+alias tank d0
+alias theMachine d1
+alias externalVent  d2
+alias externalSensor d3
+
+# in kpa
+define DesiredIntakePressure 1000
+define DesiredMinTankPressure 90
+define DesiredMaxTankPressure 100
+define maxExternalTemp 90
+
+loop:
+
+# do not run during day-time
+bdns externalSensor pressureCheck
+l r0 externalSensor Temperature
+sub r14 r0 273.15
+bgt r14 maxExternalTemp stopIntake
+
+pressureCheck:
+l r0 tank Pressure
+bgt r0 DesiredMaxTankPressure stopIntake
+blt r0 DesiredMinTankPressure startIntake
+j done
+
+dayTime:
+j stopIntake
+done:
+yield
+j loop
+
+startIntake:
+s db Setting 1
+s theMachine On 1
+s externalVent PressureInternal DesiredIntakePressure
+s externalVent Mode 1
+s externalVent Lock 1
+s externalVent On 1
+j done
+stopIntake:
+s db Setting 0
+s externalVent Mode 0
+s externalVent PressureInternal 0
+s externalVent On 1
+s externalVent Lock 0
+s theMachine On 0
+j done
