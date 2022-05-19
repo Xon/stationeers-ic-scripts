@@ -1,0 +1,45 @@
+﻿# Dump a connected tank when it gets too hot (or too full) and pull from outside
+
+alias tank d0
+alias roomSensor d1
+alias vent d2
+
+# in kpa/celcius
+define roomMinPressure 95
+define roomMaxPressure 100
+define roomMaxTemperature 40
+define tankMaxTemperature 35
+
+define ventMode 0
+define fillMode 1
+
+loop:
+
+l r0 roomSensor Temperature
+sub r13 r0 273.15
+s db Setting r13
+bgt r13 roomMaxTemperature __stopVent
+
+l r0 tank Temperature
+sub r14 r0 273.15
+bgt r14 tankMaxTemperature __stopVent
+
+l r0 roomSensor Pressure
+bgt r0 roomMaxPressure __stopVent
+blt r0 roomMinPressure __startVent
+
+done:
+yield
+j loop
+
+__startVent:
+s vent Mode ventMode
+s vent PressureExternal 100
+s vent On 1
+j done
+
+__stopVent:
+s vent Mode ventMode
+s vent PressureExternal 100
+s vent On 0
+j done
