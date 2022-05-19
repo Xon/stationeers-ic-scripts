@@ -3,6 +3,7 @@ alias tank d0
 alias theMachine d1
 alias externalVent  d2
 alias externalSensor d3
+alias cooler d4
 
 # in kpa
 define DesiredIntakePressure 1000
@@ -37,6 +38,8 @@ s externalVent PressureInternal DesiredIntakePressure
 s externalVent Mode 1
 s externalVent Lock 1
 s externalVent On 1
+bdns cooler done
+s cooler On 1
 j done
 stopIntake:
 s db Setting 0
@@ -45,4 +48,6 @@ s externalVent PressureInternal 0
 s externalVent On 1
 s externalVent Lock 0
 s theMachine On 0
+bdns cooler done
+s cooler On 0
 j done
