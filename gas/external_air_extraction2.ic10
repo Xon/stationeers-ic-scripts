@@ -1,53 +1,65 @@
-﻿# Pull in external air, and filter it till the output hits some desired pressure
-alias tank d0
-alias theMachine d1
-alias externalVent  d2
-alias externalSensor d3
-alias cooler d4
+﻿alias coolingSystem d0
+alias hotTank d1
+alias coldTank d2
+alias greenhouseSensor d3
+alias greenhouseCo2Vent d4
+alias coolingPump d5
 
-# in kpa
-define DesiredIntakePressure 1000
-define DesiredMinTankPressure 90
-define DesiredMaxTankPressure 100
-define maxExternalTemp 90
+# in kpa/celcius
+define roomMinPressure 95
+define roomMaxPressure 100
+define roomMaxTemperature 36
+
+define hotTankMaxPressure 2000
+define coldTankMaxPressure 10000 
+
+define coldTankMaxTemperature 30
+
+define filtrationHash -348054045
+define ventMode 0
+define fillMode 1
 
 loop:
 
-# do not run during day-time
-bdns externalSensor pressureCheck
-l r0 externalSensor Temperature
+l r0 hotTank Pressure
+slt r0 r0 hotTankMaxPressure
+sb filtrationHash On r0
+
+l r0 coldTank Pressure
+blt r0 coldTankMaxPressure __coldTankNotFull
+s coolingPump On 0
+j __coldTankCheck
+__coldTankNotFull:
+l r0 coolingSystem Setting
+sgt r0 r0 -5
+s coolingPump On r0
+__coldTankCheck:
+
+l r0 greenhouseSensor Temperature
+sub r13 r0 273.15
+s db Setting r13
+bgt r13 roomMaxTemperature __stopVent
+
+l r0 coldTank Temperature
 sub r14 r0 273.15
-bgt r14 maxExternalTemp stopIntake
+bgt r14 coldTankMaxTemperature __stopVent
 
-pressureCheck:
-l r0 tank Pressure
-bgt r0 DesiredMaxTankPressure stopIntake
-blt r0 DesiredMinTankPressure startIntake
-j done
+l r0 greenhouseSensor Pressure
+bgt r0 roomMaxPressure __stopVent
+blt r0 roomMinPressure __startVent
 
-dayTime:
-j stopIntake
 done:
 yield
 j loop
 
-startIntake:
-s db Setting 1
-s theMachine On 1
-s externalVent PressureInternal DesiredIntakePressure
-s externalVent Mode 1
-s externalVent Lock 1
-s externalVent On 1
-bdns cooler done
-s cooler On 1
+__startVent:
+s greenhouseCo2Vent Mode ventMode
+s greenhouseCo2Vent PressureExternal 100
+s greenhouseCo2Vent On 1
 j done
-stopIntake:
-s db Setting 0
-s externalVent Mode 0
-s externalVent PressureInternal 0
-s externalVent On 1
-s externalVent Lock 0
-s theMachine On 0
-bdns cooler done
-s cooler On 0
+
+__stopVent:
+s greenhouseCo2Vent Mode ventMode
+s greenhouseCo2Vent PressureExternal 100
+s greenhouseCo2Vent On 0
 j done
