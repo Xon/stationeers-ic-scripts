@@ -8,18 +8,29 @@ alias transformer d2
 
 alias sunsetGracePeriod r15
 
-define SolarPanelHash -539224550
-define HeavySolarPanelHash -1545574413
+define basic_1_panel -2045627372
+define basic_2_panel -539224550
+define heavy_1_panel -934345724
+define heavy_2_panel -1545574413
 
-define BatteryHash -400115994
-define BigBatteryHash -1388288459
 
+#define BatteryHash -400115994
+define BatteryHash -1388288459
+#define directions of sensor and panel power ports
+define sensor_data_angle 0
+define panel_power_angle 90
 
-define sunriseVertical 180
-define sunriseHorizontal -90
+define sunriseVertical 32
+define sunriseHorizontal 270
 define sunsetGraceTime 60
 define minChargeLevel 1
 define maxChargeLevel 3
+
+alias corr_angle r14
+
+#calculate horizontal correction
+sub corr_angle sensor_data_angle panel_power_angle
+sub corr_angle corr_angle 90
 
 move sunsetGracePeriod 0
 loop:
@@ -31,14 +42,10 @@ beqz r0 sundown
 move sunsetGracePeriod 1
 
 l r0 sensor Vertical
-div r0 r0 1.5
-add r0 50 r0
-sb SolarPanelHash Vertical r0
-sb HeavySolarPanelHash Vertical r0
-
-l r0 sensor Horizontal
-sb SolarPanelHash Horizontal r0
-sb HeavySolarPanelHash Horizontal r0
+l r1 sensor Horizontal
+sub r0 90 r0
+add r1 r1 corr_angle
+jal programSolarPanels
 
 yield
 j loop
@@ -49,10 +56,9 @@ push sunsetGraceTime
 jal sleepWithBatteryCheck
 move sunsetGracePeriod 0
 waitForDawn:
-sb SolarPanelHash Vertical sunriseVertical
-sb HeavySolarPanelHash Vertical sunriseVertical
-sb SolarPanelHash Horizontal sunriseHorizontal
-sb HeavySolarPanelHash Horizontal sunriseHorizontal
+move r0 sunriseVertical
+move r1 sunriseHorizontal
+jal programSolarPanels
 
 push 2
 jal sleepWithBatteryCheck
@@ -90,4 +96,15 @@ jal checkBatteryForExport
 bgtz r0 sleepLoop
 sleepWithBatteryCheck_prolog:
 pop ra
+j ra
+
+programSolarPanels:
+sb basic_1_panel Vertical r0
+sb basic_2_panel Vertical r0
+sb heavy_1_panel Vertical r0
+sb heavy_2_panel Vertical r0
+sb basic_1_panel Horizontal r1
+sb basic_2_panel Horizontal r1
+sb heavy_1_panel Horizontal r1
+sb heavy_2_panel Horizontal r1
 j ra
