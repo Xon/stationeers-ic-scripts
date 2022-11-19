@@ -1,0 +1,74 @@
+﻿#IC10-slot parallel Filtration Control
+
+alias filtration db
+
+alias filteron r10
+alias minRatio r8
+alias maxRatio r9
+alias inputRatio r8
+
+define MAXPRESSURE 40000 #Storage pressure kPa
+
+start:
+yield
+
+#Check storage pressure
+l r0 filtration PressureOutput
+bgt r0 MAXPRESSURE stopFilteron
+
+# get minRatio/maxRatio/inputRatio
+ls r1 filtration 0 PrefabHash
+jal checkfilter
+
+blt inputRatio minRatio stopFilteron
+bgt inputRatio maxRatio startFilteron
+
+j start
+
+checkfilter:
+mov minRatio 0.20
+mov maxRatio 0.21
+l inputRatio filtration RatioOxygenInput
+beq r1 -1067319543 ra
+beq r1 -1217998945 ra
+beq r1 -721824748 ra
+mov minRatio 0.75
+mov maxRatio 0.78
+l inputRatio filtration RatioNitrogenInput
+beq r1 -632657357 ra
+beq r1 -1387439451 ra
+beq r1 632853248 ra
+mov minRatio 0.04
+mov maxRatio 0.05
+l inputRatio filtration RatioCarbonDioxideInput
+beq r1 416897318 ra
+beq r1 1876847024 ra
+beq r1 1635000764 ra
+mov maxRatio 0
+l inputRatio filtration RatioVolatilesInput
+beq r1 1037507240 ra
+beq r1 1255156286 ra
+beq r1 15011598 ra
+mov maxRatio 0
+l inputRatio filtration RatioPollutantInput
+beq r1 63677771 ra
+beq r1 1959564765 ra
+beq r1 1915566057 ra
+mov maxRatio 0
+l inputRatio filtration RatioNitrousOxideInput
+beq r1 1824284061 ra
+beq r1 465267979 ra
+beq r1 -1247674305 ra
+move inputRatio 0
+beqz r1 ra
+
+#if you are still here then it is an error so end
+s filtration On 0
+stopFilteron:
+s filtration Mode 0
+s filtration Open 0
+j start
+startFilteron:
+s filtration Mode 1
+s filtration Open 1
+j start
