@@ -2,12 +2,13 @@
 
 alias filtration db
 
-alias minRatio r8 #<=
-alias maxRatio r9 #>
-alias inputRatio r8
+alias minRatio r10 #<=
+alias maxRatio r11 #>
+alias inputRatio r12
 
 define MaxOutputPressure 40000 # kPa
 
+s filtration Open 0
 start:
 yield
 
@@ -28,43 +29,43 @@ j start
 
 checkfilter:
 # O2
-mov minRatio 0.20
-mov maxRatio 0.22
+move minRatio 0.20
+move maxRatio 0.22
 l inputRatio filtration RatioOxygenInput
 beq r1 -1067319543 ra
 beq r1 -1217998945 ra
 beq r1 -721824748 ra
 # N2
-mov minRatio 0.77
-mov maxRatio 0.80
+move minRatio 0.77
+move maxRatio 0.80
 l inputRatio filtration RatioNitrogenInput
 beq r1 -632657357 ra
 beq r1 -1387439451 ra
 beq r1 632853248 ra
 # CO2
-mov minRatio 0.04
-mov maxRatio 0.06
+move minRatio 0.04
+move maxRatio 0.06
 l inputRatio filtration RatioCarbonDioxideInput
 beq r1 416897318 ra
 beq r1 1876847024 ra
 beq r1 1635000764 ra
 # Vol/H2
-mov minRatio 0
-mov maxRatio 0
+move minRatio 0
+move maxRatio 0
 l inputRatio filtration RatioVolatilesInput
 beq r1 1037507240 ra
 beq r1 1255156286 ra
 beq r1 15011598 ra
 # X
-mov minRatio 0
-mov maxRatio 0
+move minRatio 0
+move maxRatio 0
 l inputRatio filtration RatioPollutantInput
 beq r1 63677771 ra
 beq r1 1959564765 ra
 beq r1 1915566057 ra
 # N2O
-mov minRatio 0
-mov maxRatio 0
+move minRatio 0
+move maxRatio 0
 l inputRatio filtration RatioNitrousOxideInput
 beq r1 1824284061 ra
 beq r1 465267979 ra
@@ -74,12 +75,11 @@ move inputRatio 0
 beqz r1 ra
 # Unknown filter type
 s filtration On 0
+s filtration Open 1
 
 stopFilteron:
 s filtration Mode 0
-s filtration Open 0
 j start
 startFilteron:
 s filtration Mode 1
-s filtration Open 1
 j start
