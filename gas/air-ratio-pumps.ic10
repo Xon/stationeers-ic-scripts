@@ -8,17 +8,28 @@ alias N2_Pump d3
 define DesiredRatioOxygen 0.2
 define DesiredRatioCarbonDioxide 0.04
 define DesiredRatioNitrogen 0.66
+define minPressure 10000
 define maxPressure 30000
 
+initLoop:
+s O2_Pump On 0
+s CO2_Pump On 0
+s N2_Pump On 0
+yield
 loop:
 
-l r0 Sensor Pressure
-s db Setting r0
-bgt r0 maxPressure done
+l r1 Sensor Pressure
+s db Setting r1
+bgt r1 maxPressure initLoop
 jal __checkOxygen
 jal __checkCarbonDioxide
 jal __checkNitrogen
+blt r1 minPressure fillTank
 done:
+yield
+j loop
+fillTank:
+s N2_Pump On 1
 yield
 j loop
 
