@@ -1,0 +1,72 @@
+﻿alias filtration db
+
+define MinInputPressure 1000 # kPa
+define MinOutputPressure 20000 # kPa
+define MaxOutputPressure 40000 # kPa
+define MaxOutputTemperature 313.15 # Kelvin
+
+s filtration Open 0
+loop:
+yield
+
+l r0 filtration PressureInput
+blt r0 MinInputPressure stopFilteron
+
+l r0 filtration TemperatureOutput
+bgt r0 MaxOutputTemperature stopFilteron
+
+jal checkfilter
+blez r0 0 stopFilteron
+
+l r0 filtration PressureOutput
+bgt r0 MaxOutputPressure stopFilteron
+blt r0 MinOutputPressure startFilteron
+j loop
+
+stopFilteron:
+s filtration Mode 0
+j loop
+
+startFilteron:
+s filtration Mode 1
+j loop
+
+checkfilter:
+# O2
+ls r1 filtration 0 PrefabHash
+l r0 filtration RatioOxygenInput
+beq r1 -1067319543 ra
+beq r1 -1217998945 ra
+beq r1 -721824748 ra
+# N2
+l r0 filtration RatioNitrogenInput
+beq r1 -632657357 ra
+beq r1 -1387439451 ra
+beq r1 632853248 ra
+# CO2
+l r0 filtration RatioCarbonDioxideInput
+beq r1 416897318 ra
+beq r1 1876847024 ra
+beq r1 1635000764 ra
+# Vol/H2
+l r0 filtration RatioVolatilesInput
+beq r1 1037507240 ra
+beq r1 1255156286 ra
+beq r1 15011598 ra
+# X
+l r0 filtration RatioPollutantInput
+beq r1 63677771 ra
+beq r1 1959564765 ra
+beq r1 1915566057 ra
+# N2O
+l r0 filtration RatioNitrousOxideInput
+beq r1 1824284061 ra
+beq r1 465267979 ra
+beq r1 -1247674305 ra
+# Nothing inserted
+move r0 0
+beqz r1 ra
+# Unknown filter type
+s filtration On 0
+s filtration Open 1
+j loop
