@@ -1,0 +1,64 @@
+﻿alias ac db
+alias pump d0
+
+define MinInputPressure 100
+define MaxOutputPressure 5000
+alias targetTemp r15
+
+s ac Open 0
+s ac Lock 0
+s ac Mode 0
+s pump On 0
+l targetTemp ac Setting
+start:
+yield
+
+jal safeyChecks
+
+l r0 ac PressureInput
+blt r0 MinInputPressure tryFillInput
+
+l r0 ac Mode
+beqz r0 pulseCheck
+efficiencyCheck:
+l r0 ac TemperatureDifferentialEfficiency
+blt r0 0.5 stopAcWithDrain
+l r0 ac OperationalTemperatureEfficiency
+blt r0 0.5 stopAcWithDrain
+
+startAC:
+s ac Mode 1
+s pump On 1
+j start
+tryFillInput:
+s ac Mode 0
+s pump On 1
+sleep 1
+l r0 ac PressureInput
+blt r0 MinInputPressure tryFillInput
+j start
+stopAcWithDrain:
+s pump On 0
+s ac Mode 1
+l r0 ac PressureInput
+bgt r0 MinInputPressure stopAcWithDrain
+stopAcNow:
+s pump On 0
+s ac Mode 0
+j start
+pulseCheck:
+sleep 1
+jal safeyChecks
+s ac Mode 1
+yield
+jal safeyChecks
+j efficiencyCheck
+safeyChecks:
+# safety check output pressure
+l r0 ac PressureOutput
+bgt r0 MaxOutputPressure stopAcNow
+l r0 ac PressureOutput2
+bgt r0 MaxOutputPressure stopAcNow
+l r0 ac Open
+bnez r0 stopAcNow
+j ra

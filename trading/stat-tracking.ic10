@@ -113,12 +113,18 @@ round rHor rHor
 s dRadar Vertical rVert
 s dRadar Horizontal rHor
 alignDishLoop:
+sleep 1.0
 l r5 dRadar Vertical
 l r6 dRadar Horizontal
 round r5 r5
 round r6 r6
 bne r5 rVert alignDishLoop
 bne r6 rHor alignDishLoop
+#wait for signal to return
+_signalSync:
+sleep 1.0
+l r12 dRadar SignalStrength
+beqal r12 -1 _signalSync
 aligned:
 l rVert dRadar Vertical
 l rHor dRadar Horizontal
