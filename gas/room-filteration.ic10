@@ -1,0 +1,50 @@
+﻿#IC10-slot parallel Filtration Control
+
+alias filtration db
+
+alias minRatio r10 #<=
+alias maxRatio r11 #>
+alias inputRatio r12
+
+s filtration Open 0
+start:
+yield
+
+
+# get minRatio/maxRatio/inputRatio
+ls r1 filtration 0 PrefabHash
+jal checkfilter
+# has input
+bne inputRatio inputRatio stopFilteron
+# input hysteresis
+ble inputRatio minRatio stopFilteron
+bgt inputRatio maxRatio startFilteron
+
+j start
+
+checkfilter:
+# Vol/H2
+move minRatio 0
+move maxRatio 0
+l inputRatio filtration RatioVolatilesInput
+beq r1 1037507240 ra
+beq r1 1255156286 ra
+beq r1 15011598 ra
+# X
+move minRatio 0
+move maxRatio 0
+l inputRatio filtration RatioPollutantInput
+beq r1 63677771 ra
+beq r1 1959564765 ra
+beq r1 1915566057 ra
+
+# Unknown filter type
+s filtration On 0
+s filtration Open 1
+
+stopFilteron:
+s filtration Mode 0
+j start
+startFilteron:
+s filtration Mode 1
+j start

@@ -1,0 +1,120 @@
+s db Setting 0
+yield
+alias dSatellite d0
+alias dLight d1 #diode slide
+
+define iMaxAngleHorizonal 360.0
+define iMaxAngleVertical 90
+define iAngleIncrement 5
+define fMinSignalStrength 0.5
+
+alias fCurrentSignalID r15
+alias fLastSignalStrength r14
+alias fCurrentSignalStrength r13
+alias fCurrentHorizontal r12
+alias fCurrentVertical r11
+alias fTargetHorizontal r10
+alias fTargetVertical r9
+alias iCompleteSignals r8
+
+alias maxTargetAngle r3
+alias pTargetAngle r2
+alias pCurrentAngle r1
+
+init:
+s dLight On 0
+s db Setting 1
+yield
+s dSatellite Horizontal 0
+s dSatellite Vertical 0
+move fTargetHorizontal 0
+move fTargetVertical 0
+jal readSatelliteValues
+j main
+
+readSatelliteValues:
+s db Setting 2
+yield
+l fCurrentHorizontal dSatellite Horizontal
+l fCurrentVertical dSatellite Vertical
+l fCurrentSignalID dSatellite SignalID
+l fCurrentSignalStrength dSatellite SignalStrength
+j ra
+
+writeSatelliteAngles:
+s db Setting 8
+yield
+s dSatellite Horizontal fTargetHorizontal
+s dSatellite Vertical fTargetVertical
+j ra
+
+hasNoSignal:
+s db Setting 3
+yield
+push ra
+move pCurrentAngle 12 #fCurrentHorizontal
+move pTargetAngle 10 #fTargetHorizontal
+move maxTargetAngle iMaxAngleHorizonal
+sub r0 fCurrentHorizontal fTargetHorizontal
+breq fCurrentHorizontal iMaxAngleHorizonal 2
+beqzal r0 changeAngle
+pop ra
+beqz r0 ra
+push ra
+move pCurrentAngle 11 #fCurrentVertical
+move pTargetAngle 9 #fTargetVertical
+move maxTargetAngle iMaxAngleVertical
+sub r0 fCurrentVertical fTargetVertical
+beqal fCurrentVertical iMaxAngleVertical 2 # if (fCurrentVertical == iMaxAngleVertical) reset()
+breq fCurrentVertical iMaxAngleVertical 2 # skip changeAngle() if we're resetting
+beqzal r0 changeAngle
+pop ra
+j ra
+
+#pCurrentAngle r1
+#pTargetAngle r2
+#pMaxTargetAngle r3
+changeAngle:
+s db Setting 4
+yield
+sub r0 rr1 rr2
+bnez r0 ra # if (pCurrentAngle != pTargetTarget) return;
+add rr2 rr2 5
+brge rr2 maxTargetAngle 2 # if (pTargetAngle >= pMaxTargetAngle) pTargetAngle -= pMaxTargetAngle
+jr 2           # else waitForSatelliteToStopMoving()
+sub rr2 rr2 maxTargetAngle
+push ra
+jal writeSatelliteAngles
+jal waitForSatelliteToStopMoving
+pop ra
+j ra
+
+checkCurrentSignal:
+s db Setting 5
+yield
+l fCurrentSignalID dSatellite SignalID
+l fCurrentSignalStrength dSatellite SignalStrength
+j ra
+
+#pCurrentAngle r1
+#pTargetAngle r2
+waitForSatelliteToStopMoving:
+s db Setting 6
+yield
+push ra
+jal readSatelliteValues
+pop ra
+sub r0 rr2 rr1
+blt r0 0.5 ra # jump if less than 0.5 to account for float math
+sleep 1.0
+j waitForSatelliteToStopMoving
+
+main:
+s db Setting 7
+sleep 5 # time to init, stop moving, etc.
+jal checkCurrentSignal
+bltal fCurrentSignalID fMinSignalStrength hasNoSignal
+yield
+j main
+
+s db Setting -1

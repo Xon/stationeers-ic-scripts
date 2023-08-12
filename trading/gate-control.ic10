@@ -1,0 +1,51 @@
+alias hangerStateSwitch d0
+
+define SmallHangerDoor 1736080881
+define MediumHangerDoor -566348148
+define LargeHangerDoor -1351081801
+define WindowShutter 2056377335
+
+alias lastState r15
+move lastState 0
+
+inputLoop:
+yield
+l r0 hangerStateSwitch Open
+beq r0 lastState inputLoop
+move lastState r0
+s db Setting r0
+jal GateToggle
+j inputLoop
+
+GateToggle:
+push ra
+s hangerStateSwitch Lock 1
+sb SmallHangerDoor On 1
+sb MediumHangerDoor On 1
+sb LargeHangerDoor On 1
+sb WindowShutter On 1
+yield
+sb SmallHangerDoor Open r0
+sb MediumHangerDoor Open r0
+sb LargeHangerDoor Open r0
+sb WindowShutter Open r0
+move r2 0
+move r0 SmallHangerDoor
+jal powerDeviceWaitLoop
+move r0 MediumHangerDoor
+jal powerDeviceWaitLoop
+move r0 LargeHangerDoor
+jal powerDeviceWaitLoop
+s hangerStateSwitch Lock 0
+pop ra
+j ra
+powerDeviceWaitLoop:
+lb r1 r0 On Maximum
+beqz r1 ra
+sub r2 r2 1
+s db Setting r2
+yield
+lb r1 r0 Idle Maximum
+beqz r1 powerDeviceWaitLoop
+sb r0 On 0
+j ra

@@ -1,0 +1,24 @@
+﻿# Pull in external air, and filter it till the output hits some desired pressure
+alias vent d0
+define activeVentHash -1129453144
+
+alias lastState r15
+l r0 vent On
+j setState
+loop:
+yield
+
+l r0 vent On
+beq r0 lastState loop
+
+setState:
+move lastState r0
+sb activeVentHash On r0
+l r0 vent PressureInternal
+sb activeVentHash PressureInternal r0
+l r0 vent Mode
+sb activeVentHash Mode r0
+l r0 vent Lock
+sb activeVentHash Lock r0
+
+j loop

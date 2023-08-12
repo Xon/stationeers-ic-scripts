@@ -1,0 +1,65 @@
+﻿alias acTank d0
+alias externalTempSensor d1
+alias ventPump d2
+
+define nightTemperature 130
+define ventTankPressureStart 20000
+define ventTankPressureStop 18000
+define ventTankTempStart 40
+define stopAcTemp 30
+
+define airConditionerHash -2087593337
+
+s db Setting 0
+s ventPump On 0
+sb airConditionerHash On 0
+loop:
+
+l r0 externalTempSensor Temperature
+sub r14 r0 273.15
+bgt r14 nightTemperature stopForDay
+
+l r0 acTank Pressure
+bgt r0 ventTankPressureStart startVentTank
+s db Setting 1
+s ventPump On 0
+
+bne r0 r0 startAC
+blez r0 startAC
+bgt r0 ventTankPressureStop done
+
+l r0 acTank Temperature
+sub r14 r0 273.15
+blt r14 stopAcTemp done
+startAC:
+sb airConditionerHash On 1
+j done
+
+stopForDay:
+sb airConditionerHash On 0
+s db Setting -1
+
+l r0 acTank Pressure
+bne r0 r0 stopPump
+blez r0 stopPump
+
+l r0 acTank Temperature
+sub r14 r0 273.15
+bgt r14 ventTankTempStart startVentTank
+j done
+
+stopPump:
+s ventPump On 0
+j done
+
+startVentTank:
+s db Setting 0
+s ventPump On 1
+sb airConditionerHash On 0
+j done
+
+done:
+yield
+j loop
+
+

@@ -1,0 +1,38 @@
+﻿# vacuum out a room at a switch
+alias theSwitch d0
+alias sensor d1
+alias tank d2
+
+# in kpa
+define tankMaxPressure 40000
+define activeVentHash -1129453144
+
+alias lastState r15
+move lastState 0
+j __stopVents
+
+loop:
+yield
+
+l r0 sensor Pressure
+beqz r0 __stopVents
+l r0 tank Pressure
+bge r0 tankMaxPressure __stopVents
+
+l r0 theSwitch Setting
+beq r0 lastState loop
+move lastState r0
+beqz r0 __stopVents
+
+__startFill:
+s db Setting r0
+sb activeVentHash PressureInternal tankMaxPressure
+sb activeVentHash Mode 1
+sb activeVentHash Lock 1
+sb activeVentHash On 1
+j loop
+__stopVents:
+s db Setting -1
+sb activeVentHash On 0
+sb activeVentHash Lock 0
+j loop

@@ -1,0 +1,43 @@
+﻿alias tempSensor d0
+
+define dayTempFillStop 610
+define dayTempFillStart 620
+define nightTempStart 130
+define nightTempStop 180
+define activeVentHash -1129453144
+define stirlingEngineHash -260316435
+
+loop:
+
+l r0 tempSensor Temperature
+sub r14 r0 273.15
+s db Setting r14
+
+bltal r14 nightTempStart _startEngine
+bgtal r14 nightTempStop _stopEngine
+
+bgtal r14 dayTempFillStart _doFill
+bltal r14 dayTempFillStop _stopFill
+
+done:
+yield
+j loop
+
+_doFill:
+sb activeVentHash PressureInternal 45000
+sb activeVentHash Mode 1
+sb activeVentHash Lock 1
+sb activeVentHash On 1
+j ra
+
+_stopFill:
+sb activeVentHash On 0
+j ra
+
+_startEngine:
+sb sterlingEngineHash On 1
+j ar
+
+_stopEngine:
+sb sterlingEngineHash On 0
+j ra

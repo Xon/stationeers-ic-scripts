@@ -1,0 +1,12 @@
+﻿alias pump d0
+define tankStorageHash 1632165346
+loop:
+yield
+lb r0 tankStorageHash Pressure 3
+bne r0 r0 stopPump
+startPump:
+s stopPump On 1
+j loop
+stopPump:
+s stopPump On 0
+j loop

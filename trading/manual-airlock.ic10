@@ -1,0 +1,102 @@
+alias hangerStateSwitch d0
+alias airHarvestingPump d1
+
+define SmallHangerDoor 1736080881
+define MediumHangerDoor -566348148
+define LargeHangerDoor -1351081801
+define WindowShutter 2056377335
+define GasSensors -1252983604
+alias requestedHangerState r14
+alias hangerState r15
+define hangerAirHarvest 0
+define hangerOpen 1
+define hangerClosed 2
+define hangerPresurize 3
+# init
+move hangerState hangerAirHarvest
+move requestedHangerState hangerClosed
+s hangerStateSwitch Mode hangerPresurize
+s hangerStateSwitch Setting hangerClosed
+j incrementState
+inputLoop:
+yield
+s db Setting 99
+l requestedHangerState hangerStateSwitch Setting
+beq requestedHangerState hangerState inputLoop
+bgt requestedHangerState hangerPresurize doError
+blt requestedHangerState hangerState decrementState
+incrementState:
+s db Setting hangerState
+#beqal hangerState hangerAirHarvest doError
+beqal hangerState hangerOpen stopHarvesting
+beqal hangerState hangerClosed doClose
+beqal hangerState hangerPresurize doPressurize
+bgeal hangerState requestedHangerState inputLoop
+add hangerState hangerState 1
+yield
+j incrementState
+decrementState:
+s db Setting hangerState
+#beqal hangerState hangerPresurize doError
+beqal hangerState hangerClosed doDepressurize
+beqal hangerState hangerOpen doOpen
+beqal hangerState hangerAirHarvest startHarvesting
+bleal hangerState requestedHangerState inputLoop
+sub hangerState hangerState 1
+yield
+j decrementState
+doPressurize:
+j ra
+doDepressurize:
+j ra
+doClose:
+move r0 0
+j GateToggle
+doOpen:
+move r0 1
+j GateToggle
+startHarvesting:
+bdns airHarvestingPump noPump
+s airHarvestingPump On 1
+l r0 airHarvestingPump Maximum
+s airHarvestingPump Setting r0
+j ra
+stopHarvesting:
+bdns airHarvestingPump noPump
+s airHarvestingPump On 0
+s airHarvestingPump Setting 0
+noPump:
+j ra
+GateToggle:
+push ra
+sb SmallHangerDoor On 1
+sb MediumHangerDoor On 1
+sb LargeHangerDoor On 1
+sb WindowShutter On 1
+yield
+sb SmallHangerDoor Open r0
+sb MediumHangerDoor Open r0
+sb LargeHangerDoor Open r0
+sb WindowShutter Open r0
+move r2 0
+move r0 SmallHangerDoor
+jal powerDeviceWaitLoop
+move r0 MediumHangerDoor
+jal powerDeviceWaitLoop
+move r0 LargeHangerDoor
+jal powerDeviceWaitLoop
+pop ra
+j ra
+powerDeviceWaitLoop:
+lb r1 r0 On Maximum 
+beqz r1 ra
+sub r2 r2 1
+s db Setting r2
+yield
+lb r1 r0 Idle Maximum 
+beqz r1 powerDeviceWaitLoop
+sb r0 On 0
+j ra
+doError:
+s db Setting hangerState
+mv r1 r1

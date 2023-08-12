@@ -1,0 +1,42 @@
+﻿# Pull in external air, and filter it till the output hits some desired pressure
+alias hotTank d0
+alias externalTempSensor d1
+
+# in celcius
+define externalTempThreshold 130
+# in kpa
+define DesiredIntakePressure 20000
+define hotTankMinPressure 15000
+define hotTankMaxPressure 20000
+
+define filtrationHash -348054045
+define activeVentHash -1129453144
+
+loop:
+
+l r0 externalTempSensor Temperature
+sub r14 r0 273.15
+s db Setting r14
+bgt r14 externalTempThreshold __stopFill
+
+l r0 hotTank Pressure
+bgt r0 hotTankMinPressure __stopFill
+blt r0 hotTankMaxPressure __startFill
+
+done:
+yield
+j loop
+
+__startFill:
+sb activeVentHash PressureInternal DesiredIntakePressure
+sb activeVentHash Mode 1
+sb activeVentHash Lock 1
+sb activeVentHash On 1
+sb filtrationHash On 1
+j done
+__stopFill:
+sb activeVentHash Mode 0
+sb activeVentHash On 1
+sb activeVentHash Lock 0
+sb filtrationHash On 0
+j done

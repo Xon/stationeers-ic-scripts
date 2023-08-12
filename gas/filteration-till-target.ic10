@@ -1,0 +1,24 @@
+#IC10-slot parallel Filtration Control
+
+alias filtration db
+
+define MaxOutputPressure 40000 # kPa
+define nightTemperature 130
+
+s filtration Open 0
+start:
+yield
+
+l r0 filtration TemperatureOutput2
+sub r14 r0 273.15
+bgt r14 nightTemperature stopFilteron
+
+l r0 filtration PressureOutput
+bgt r0 MaxOutputPressure stopFilteron
+
+startFilteron:
+s filtration Mode 1
+j start
+stopFilteron:
+s filtration Mode 0
+j start

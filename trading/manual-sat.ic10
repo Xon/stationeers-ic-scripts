@@ -1,0 +1,27 @@
+s db Setting 0
+yield
+alias dSatellite d0
+alias dSignalStrength d1 #diode slide
+
+alias dHorizontal d3 #dial 0-360
+alias dVertical d4 #dial 0-90
+
+loop:
+yield
+
+l r1 dHorizontal Setting
+s dSatellite Horizontal r1
+
+l r1 dVertical Setting
+s dSatellite Vertical r1
+
+l r1 dSatellite SignalStrength
+s db Setting r1
+
+# slt r2 r1 0.5
+s dSignalStrength On 1
+s dSignalStrength Setting r1
+
+
+yield
+j loop

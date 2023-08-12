@@ -1,0 +1,55 @@
+﻿alias harvesterSensor d0
+alias harvesterPump d1
+alias tank d2
+alias dumpPump d3
+alias co2Tank d4
+alias co2Export d5
+
+define minPressure 10000
+define maxPressure 20000
+define maxTankPressure 30000
+
+s harvesterPump On 0
+s dumpPump On 0
+s co2Export On 0
+
+loop:
+yield
+jal fillPipesIfNeeded
+jal emptyTankIfNeeded
+jal checkCo2ForExport
+j loop
+
+fillPipesIfNeeded:
+l r1 harvesterSensor Pressure
+s db Setting r1
+blt r1 minPressure startFillPipes
+bgt r1 maxPressure stopFillPipes
+j ra
+startFillPipes:
+s harvesterPump On 1
+j ra
+stopFillPipes:
+s harvesterPump On 0
+j ra
+
+emptyTankIfNeeded:
+l r1 tank Pressure
+bgt r1 maxTankPressure startEmptyTank
+blt r1 maxPressure stopEmptyTank
+j ra
+startEmptyTank:
+s dumpPump On 1
+j ra
+stopEmptyTank:
+s dumpPump On 0
+j ra
+
+checkCo2ForExport:
+l r1 co2Tank Pressure
+sgt r1 r1 100
+l r2 co2Tank Temperature
+slt r2 r2 303.15
+and r1 r1 r2
+s co2Export On r1
+j ra

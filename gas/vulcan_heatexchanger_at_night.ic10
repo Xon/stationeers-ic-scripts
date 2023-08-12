@@ -1,0 +1,30 @@
+﻿alias tank d0
+alias tempSensor d1
+alias pump d2
+
+define nightTemperature 130
+define targetTankTemperature 135
+
+s db Setting 0
+s pump On 0
+loop:
+yield
+
+l r0 tempSensor Temperature
+sub r14 r0 273.15
+s db Setting r14
+bgt r14 nightTemperature stopForDay
+
+l r0 tank Temperature
+sub r14 r0 273.15
+bgt r14 targetTankTemperature stopForDay
+
+s pump On 1
+j loop
+
+stopForDay:
+s db Setting -1
+s pump On 0
+j loop
+
+
