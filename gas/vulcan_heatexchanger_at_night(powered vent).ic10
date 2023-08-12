@@ -1,0 +1,28 @@
+alias externalSensor d0
+alias internalSensor d1
+
+define largePowerdVentHash -785498334
+
+s db Setting 0
+sb largePowerdVentHash On 0
+#sb largePowerdVentHash Mode 0
+loop:
+yield
+
+l r0 externalSensor Temperature
+l r1 internalSensor Temperature
+bgt r0 r1 externalNotColdEnough
+sub r14 r0 273.15
+s db Setting r14
+
+sb largePowerdVentHash On 1
+sb largePowerdVentHash Mode 1
+j loop
+
+externalNotColdEnough:
+s db Setting -1
+sb largePowerdVentHash On 0
+#sb largePowerdVentHash Mode 0
+j loop
+
+
