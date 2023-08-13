@@ -16,7 +16,7 @@ l r0 filtration TemperatureOutput
 bgt r0 MaxOutputTemperature stopFilteron
 
 jal checkfilter
-blez r0 0 stopFilteron
+blez r0 stopFilteron
 
 l r0 filtration PressureOutput
 bgt r0 MaxOutputPressure stopFilteron
