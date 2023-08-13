@@ -7,7 +7,7 @@ define MaxOutputPressure 40000 # kPa
 define MaxOutputTemperature 313.15 # Kelvin
 
 s filtration Open 0
-bdns loop
+bdns pump loop
 s pump On 0
 loop:
 yield
@@ -28,13 +28,13 @@ j loop
 
 stopFilteron:
 s filtration Mode 0
-bdns loop
+bdns pump loop
 s pump On 0
 j loop
 
 startFilteron:
 s filtration Mode 1
-bdns loop
+bdns pump loop
 s pump On 1
 j loop
 
@@ -76,6 +76,6 @@ beqz r1 ra
 # Unknown filter type
 s filtration On 0
 s filtration Open 1
-bdns loop
+bdns pump loop
 s pump On 0
 j loop
