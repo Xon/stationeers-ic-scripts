@@ -1,6 +1,6 @@
 ﻿##### SYSTEM VARIABLES #####
-define SetPoint 15000
-define MinSetPoint 10000
+define SetPoint 14000
+define MaxSetPoint 15000
 define OutputSetPoint 4000
 define Kp 0.006 #Aprox MaxOutput/SP
 define Ti 0
@@ -45,7 +45,7 @@ yield
 l InputValue OutputSensor Pressure
 bge InputValue OutputSetPoint SetOff
 l InputValue CompressSensor Pressure
-ble InputValue MinSetPoint SetOff
+bge InputValue MaxSetPoint SetOff
 Filter:
 beqz FilterTicks Calculate
 brlt FilterCounter FilterTicks 3
