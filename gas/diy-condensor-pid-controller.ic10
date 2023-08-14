@@ -2,6 +2,7 @@
 define SetPoint 14000
 define MaxSetPoint 15000
 define OutputSetPoint 4000
+define MinSrcPressure 500
 define Kp 0.006 #Aprox MaxOutput/SP
 define Ti 0
 define Td 0
@@ -14,6 +15,7 @@ define RegulatorMode -1
 
 alias CompressSensor d0
 alias Actuator d1
+alias SrcSensor d2
 alias OutputSensor d5
 
 define TimeStep 0.5
@@ -42,8 +44,10 @@ jal CalculateError
 move PreviousE e
 Loop:
 yield
+l InputValue SrcSensor Pressure
+blt InputValue MinSrcPressure DrainPressure
 l InputValue OutputSensor Pressure
-bge InputValue OutputSetPoint SetOff
+bge InputValue OutputSetPoint DrainPressure
 l InputValue CompressSensor Pressure
 bge InputValue MaxSetPoint SetOff
 Filter:
@@ -83,6 +87,17 @@ SetState:
 s db Setting ProcessValue
 bdseal Actuator SetActuator
 j Loop
+DrainPressure:
+l InputValue CompressSensor Pressure
+bgtz InputValue DoDrainPressure
+move ProcessValue 0
+j SetOff
+DoDrainPressure:
+s Actuator On 1
+s Actuator Setting MaxOutput
+s Actuator Mode 1
+s db Setting MaxOutput
+j Loop
 CalculateError:
 sub e InputValue SP
 mul e e RegulatorMode
@@ -91,4 +106,5 @@ SetActuator:
 sgez r11 ProcessValue
 s Actuator On r11
 s Actuator Setting ProcessValue
+s Actuator Mode 0
 j ra
