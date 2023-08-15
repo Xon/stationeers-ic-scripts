@@ -1,0 +1,45 @@
+﻿alias gas d0
+alias refrigerant d1
+alias valve d2
+
+define delta 2
+define targetTempC 20
+
+alias gasK r14
+alias refrigerantK r13
+alias target r12
+
+move target 274.15
+add target target targetTempC
+
+loop:
+yield
+
+l gasK gas Temperature
+ceil gasK gasK
+# hit target temp
+ble gasK target __atTargetTemp
+
+l refrigerantK refrigerant Temperature
+ceil refrigerantK refrigerantK
+# refrigerant is too warm
+sub r3 gasK delta
+ble r3 refrigerantK __toWarm
+
+sub r3 gasK 274.15
+s db Setting r3
+s valve On 1
+s valve Setting 1
+j loop
+
+__atTargetTemp:
+s db Setting -1
+j __closeValve
+__toWarm:
+s db Setting -2
+__closeValve:
+s valve Setting 0
+yield
+s valve On 0
+sleep 1
+j loop
