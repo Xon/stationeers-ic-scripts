@@ -1,0 +1,70 @@
+﻿alias externalSensor d0
+alias dayAirValve d1
+alias dayAirSensor d2
+alias nightAirValve d3
+alias nightAirSensor d4
+alias harvestPipe d5
+
+alias externalTemp r14
+
+define dayTempFillStart 640
+define nightTempStart 130
+define poweredVentHash -785498334
+define maxPressure 500000
+
+jal _stopFill
+loop:
+yield
+
+l r0 externalSensor Temperature
+sub externalTemp r0 273.15
+ceil externalTemp externalTemp
+s db Setting externalTemp
+
+l r0 harvestPipe Pressure
+brge r0 maxPressure _stopFill
+
+bgt externalTemp dayTempFillStart _doDayFill
+blt externalTemp nightTempStart _doNightFill
+
+jal _stopFill
+j loop
+
+_doDayFill:
+l r0 dayAirSensor Pressure
+brge r0 maxPressure _stopFill
+s nightAirValve Setting 0
+s dayAirValve On 1
+s dayAirValve Setting 1
+sb poweredVentHash Mode 1
+sb poweredVentHash On 1
+j ra
+
+_doNightFill:
+l r0 nightAirSensor Pressure
+brge r0 maxPressure _stopFill
+s dayAirValve Setting 0
+s nightAirValve On 1
+s nightAirValve Setting 1
+sb poweredVentHash Mode 1
+sb poweredVentHash On 1
+j ra
+
+_stopFill:
+s dayAirValve Setting 0
+s nightAirValve Setting 0
+s dayAirValve On 0
+s nightAirValve On 0
+_emptyPipe:
+l r0 harvestPipe Pressure
+beqz r0 stopEmptyPipe
+sb poweredVentHash Mode 0
+sb poweredVentHash On 1
+sb poweredVentHash PressureExternal 50000
+yield
+j _emptyPipe
+stopEmptyPipe:
+sb poweredVentHash On 0
+sb poweredVentHash Mode 1
+yield
+j ra
