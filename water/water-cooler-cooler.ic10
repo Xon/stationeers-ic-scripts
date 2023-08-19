@@ -27,7 +27,7 @@ slt r3 externalTemp condensorCoolingLoopTemp
 s coolingVent On r3
 
 l gasLoopTemp gasCoolingSensor Temperature
-sub gasLoopTemp gasLoopTemp 55
+add gasLoopTemp gasLoopTemp 55
 slt r3 externalTemp gasLoopTemp
 s aircon On r3
 
