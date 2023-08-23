@@ -1,0 +1,50 @@
+﻿define minTemperature 243.15
+define maxTemperature 413.15
+
+alias isCooling r11
+alias tempSetting r12
+alias lastTempSetting r13
+l lastTempSetting db Setting
+
+s db Open 0
+loop:
+yield
+
+# detect configuration
+l tempSetting db Setting
+beq tempSetting lastTempSetting skipConfigChange
+slt r1 tempSetting lastTempSetting
+select r1 r1 minTemperature maxTemperature
+s db Setting r1
+move lastTempSetting tempSetting
+skipConfigChange:
+
+# disable AC if the window is open
+l r0 db Open
+move ra loop
+bnez r0 disableAC
+
+# determine is output is at right temperature
+l r0 db TemperatureOutput
+bne tempSetting minTemperature skipHotCheck
+bleal r0 minTemperature disableACasTempReached
+j skipColdCheck
+skipHotCheck:
+bne tempSetting maxTemperature skipColdCheck
+bgeal r0 maxTemperature disableACasTempReached
+skipColdCheck:
+
+# detemine if input pressure has dropped to low
+l r0 db TemperatureInput
+bleal r0 110 disableAC
+bgeal r0 200 enableAC
+
+j loop
+enableAC:
+s db Mode 1 
+j ra
+disableACasTempReached:
+move ra loop
+disableAC:
+s db Mode 0 
+j ra
