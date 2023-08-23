@@ -1,0 +1,44 @@
+alias switch d0
+alias inputSensor d1
+alias outputSensor d2
+alias inputPump d5
+
+# evaporator
+define machines -1429782576
+define targetPressure 10
+
+s db Setting -99
+stopMachines:
+sb machines On 0
+s inputPump On 0
+loop:
+yield
+
+l r0 switch Setting
+beqz r0 switchOff
+
+# check output pressure
+l r0 outputSensor VolumeOfLiquid
+bge r0 0.0001 tooMuchLiquid
+l r0 outputSensor Pressure
+bge r0 2000 maxOutputPressure
+
+# check input pressure
+l r0 inputSensor Pressure
+slt r1 r0 5050
+s inputPump On r1
+s db Setting r0
+
+sb machines Setting targetPressure
+sb machines On 1
+j loop
+
+tooMuchLiquid:
+s db Setting -3
+j stopMachines
+maxOutputPressure:
+s db Setting -2
+j stopMachines
+switchOff:
+s db Setting -1
+j stopMachines

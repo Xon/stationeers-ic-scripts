@@ -1,0 +1,51 @@
+alias switch d0
+alias inputSensor d1
+alias outputSensor d2
+alias preHeatSensor d3
+alias inputPump d5
+
+
+# condensator
+define machines 1420719315
+define targetPressure 6000
+define targetTemperature 292.15
+
+s db Setting -99
+stopMachines:
+sb machines On 0
+s inputPump On 0
+loop:
+yield
+
+l r0 switch Setting
+beqz r0 switchOff
+
+l r0 preHeatSensor Temperature
+ble r0 targetTemperature atTargetTemp
+
+# check output pressure
+l r0 outputSensor Pressure
+bge r0 5050 maxOutputPressure
+
+# check input conditions
+l r0 inputSensor Pressure
+s db Setting r0
+slt r1 r0 2000
+l r0 outputSensor VolumeOfLiquid
+slt r2 r0 0.0001
+min r3 r1 r2
+s inputPump On r3
+
+sb machines Setting targetPressure
+sb machines On 1
+j loop
+
+atTargetTemp:
+s db Setting -3
+j stopMachines
+maxOutputPressure:
+s db Setting -2
+j stopMachines
+switchOff:
+s db Setting -1
+j stopMachines

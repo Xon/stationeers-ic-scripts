@@ -1,0 +1,18 @@
+alias externalSensor d0
+alias hotSideSensor d1
+
+define poweredVent 2015439334
+sb poweredVent Mode 1
+sb poweredVent PressureExternal 50000
+
+loop:
+yield
+
+l r1 externalSensor Temperature
+l r2 hotSideSensor Temperature
+
+slt r0 r1 r2
+sb poweredVent On r0
+s db Setting r0
+
+j loop
