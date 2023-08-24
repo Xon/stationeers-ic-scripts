@@ -1,11 +1,14 @@
-﻿define minTemperature 243.15
+﻿alias debugOuput d1
+
+define minTemperature 243.15
 define maxTemperature 413.15
 
 alias isCooling r11
 alias tempSetting r12
 alias lastTempSetting r13
+alias debugState r14
 l lastTempSetting db Setting
-
+move debugState 0
 s db Open 0
 loop:
 yield
@@ -22,29 +25,63 @@ skipConfigChange:
 # disable AC if the window is open
 l r0 db Open
 move ra loop
-bnez r0 disableAC
+bnez r0 disableAC_open
 
-# determine is output is at right temperature
+# sanity checks on inputs
+l r1 db TotalMolesInput
+l r2 db TotalMolesOutput
+beqz r2 enableAC_noInput
+# Not enough input fluid: input <= average - 45%
+add r0 r1 r2
+div r0 r0 2
+mul r3 r0 0.45
+ble r1 r3 disableAC_lowInput
+
+# determine is input/output is at the right temperature
+beq tempSetting minTemperature checkOutput
+l r0 db TemperatureInput
+blt r0 minTemperature disableAC_coldInput
+j enableAC_startInput
+checkOutput:
 l r0 db TemperatureOutput
-bne tempSetting minTemperature skipHotCheck
-bleal r0 minTemperature disableACasTempReached
-j skipColdCheck
-skipHotCheck:
-bne tempSetting maxTemperature skipColdCheck
-bgeal r0 maxTemperature disableACasTempReached
-skipColdCheck:
+blt r0 minTemperature disableAC_coldOutput
+j enableAC_startOuput
 
-# detemine if input pressure has dropped to low
-l r0 db PressureInput
-bleal r0 200 disableAC
-bgeal r0 400 enableAC
+readTemperature:
+# when cooling, check the output temperature
+l r0 db TemperatureOutput
+beq tempSetting minTemperature ra
+l r0 db TemperatureInput
+j ra
 
-j loop
+enableAC_startOuput:
+move debugState 3
+j enableAC
+enableAC_startInput:
+move debugState 2
+j enableAC
+enableAC_noInput:
+move debugState 1
+j enableAC
+disableAC_open:
+move debugState -1
+j disableAC
+disableAC_lowInput:
+move debugState -2
+j disableAC
+disableAC_coldInput:
+move debugState -3
+j disableAC
+disableAC_coldOutput:
+move debugState -4
+j disableAC
 enableAC:
 s db Mode 1 
-j ra
-disableACasTempReached:
-move ra loop
+bdns debugOuput loop
+s debugOuput Setting debugState
+j loop
 disableAC:
-s db Mode 0 
-j ra
+s db Mode 0
+bdns debugOuput loop
+s debugOuput Setting debugState
+j loop
