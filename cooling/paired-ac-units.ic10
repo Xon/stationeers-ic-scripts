@@ -35,9 +35,9 @@ bgeal r0 maxTemperature disableACasTempReached
 skipColdCheck:
 
 # detemine if input pressure has dropped to low
-l r0 db TemperatureInput
-bleal r0 110 disableAC
-bgeal r0 200 enableAC
+l r0 db PressureInput
+bleal r0 200 disableAC
+bgeal r0 400 enableAC
 
 j loop
 enableAC:
