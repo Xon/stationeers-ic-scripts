@@ -1,0 +1,89 @@
+﻿alias externalSensor d0
+define hotSteam HASH("Hot steam tank")
+define hotishSteam HASH("Hotish steam tank")
+define warmWater HASH("Warm water tank")
+define waterSensor HASH("Water sensor")
+define waterCoolerVent HASH("Cooling vent2")
+define hotSteamPump HASH("Hot steam pump")
+define hotishSteamPump HASH("Hotish steam pump")
+define warmWaterPump HASH("Warm water pump")
+define steamCondensor HASH("Steam condensor")
+
+define poweredVent -785498334
+define sGasTank 272136332
+define sLiquidTank 608607718
+define gasVolumePump -321403609
+define liquidVolumePump -454028979
+define condensor 1420719315
+alias externalTemp r9
+alias externalCooling r10
+loop:
+yield
+# check if external is lower than tanks
+l externalTemp externalSensor Temperature
+bgeal externalTemp 573.15 stopActiveVent
+move r13 sGasTank
+move r14 hotSteam
+jal checkTempForActiveVent
+move r13 sGasTank
+move r14 hotishSteam
+jal checkTempForActiveVent
+move r13 sLiquidTank
+move r14 warmWater
+jal checkTempForActiveVent
+stopActiveVent:
+sbn condensor steamCondensor On 0
+jal stopPumpHotToHotish
+jal stopPumpHotishToWarm
+jal stopPumpWarmToCold
+move externalCooling 0
+move ra loop
+j setCoolingVent
+checkTempForActiveVent:
+lbn r0 r13 r14 Temperature 3
+bgt externalTemp r0 ra
+move externalCooling 1
+move ra afterTempChecks
+j setCoolingVent
+afterTempChecks:
+#check if hot steam to be cooled to hotish steam
+lbn r0 sGasTank hotSteam Pressure 3
+bnez r0 startPumpHotToHotish
+beqz r0 stopPumpHotToHotish
+#check if hotish steam to be cooled to warm water
+lbn r0 sGasTank hotishSteam Temperature 3
+bgeal r0 413.15 startPumpHotishToWarm
+bltal r0 403.15 stopPumpHotishToWarm
+# check if warm water can be moved to portable tank
+lbn r1 sLiquidTank waterSensor Temperature 3
+move ra loop
+bge r1 294.15 stopPumpWarmToCold
+lbn r0 sLiquidTank warmWater Temperature 3
+bltal r0 403.15 startPumpWarmToCold
+bgeal r0 408.15 stopPumpWarmToCold
+
+j loop
+setCoolingVent:
+s db Setting externalCooling
+sbn poweredVent waterCoolerVent Mode 1
+sbn poweredVent waterCoolerVent On externalCooling
+j ra
+startPumpHotToHotish:
+sbn gasVolumePump hotSteamPump On 1
+j ra
+stopPumpHotToHotish:
+sbn gasVolumePump hotSteamPump On 0
+j ra
+startPumpHotishToWarm:
+sbn gasVolumePump hotishSteamPump On 1
+j ra
+stopPumpHotishToWarm:
+sbn gasVolumePump hotishSteamPump On 0
+j ra
+startPumpWarmToCold:
+sbn liquidVolumePump warmWaterPump On 1
+j ra
+stopPumpWarmToCold:
+sbn liquidVolumePump warmWaterPump On 0
+j ra
+
