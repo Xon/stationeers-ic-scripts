@@ -1,0 +1,58 @@
+﻿#Harvie 500 controller 11/Apr/2023   CowsAreEvil
+#Control up to 511 harvies on seperate cycles
+#Set veriables here to customise operation
+#Collect seeds Yes/No  Use Fertiliser Yes/No
+define GETSEEDS -1  # -1(No)  0(Yes)
+define USEPOOP 1 # 0(No)  1(Yes)
+#Give the Harvie and Hydroponics tray the same name
+#Enter the names of the sets in the list here
+#Add as many as you want, end the list with "push 0"
+push HASH("Harvie Set 1")
+push HASH("Harvie Set 2")
+push HASH("Harvie Set 3")
+push HASH("Harvie Set 4")
+push HASH("Harvie Set 5")
+push HASH("Harvie Set 6")
+push HASH("Harvie Set 7")
+push HASH("Harvie Set 8")
+push HASH("Harvie Set 9")
+push HASH("Harvie Set 10")
+push HASH("Harvie Set 11")
+push HASH("Harvie Set 12")
+push 0
+
+#Dont edit anything below here
+alias setname r10
+define HARVIE 958056199
+define TRAY -1841632400
+
+s db Setting 1
+
+reset:
+move sp 0
+start:
+yield
+add sp sp 1
+peek setname
+beqz setname reset
+
+checkdevice:
+lbn r0 HARVIE setname Activate Minimum
+bnez r0 start
+lbns r0 TRAY setname 0 Mature Minimum
+beq r0 -1 plant
+bne r0 1 start
+lbns r0 TRAY setname 0 Seeding Minimum
+blt r0 GETSEEDS start
+sbn HARVIE setname Harvest 1
+j start
+
+plant:
+l r0 db Setting
+beqz r0 start
+lbns r0 HARVIE setname 0 Quantity Minimum
+beqz r0 start
+lbns r0 TRAY setname 1 Quantity Minimum
+blt r0 USEPOOP start
+sbn HARVIE setname Plant 1
+j start
