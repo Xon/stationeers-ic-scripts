@@ -10,7 +10,9 @@ s filtration Open 0
 start:
 yield
 
-
+# sanity check output
+l r0 filtration PressureOutput
+bgt inputRatio 40000 stopFilteron
 # get minRatio/maxRatio/inputRatio
 ls r1 filtration 0 PrefabHash
 jal checkfilter
@@ -37,6 +39,27 @@ l inputRatio filtration RatioPollutantInput
 beq r1 63677771 ra
 beq r1 1959564765 ra
 beq r1 1915566057 ra
+# N20
+move minRatio 0
+move maxRatio 0
+l inputRatio filtration RatioNitrousOxideInput
+beq r1 1824284061 ra
+beq r1 465267979 ra
+beq r1 -1247674305 ra
+# O2
+move minRatio 10
+move maxRatio 25
+l inputRatio filtration RatioOxygenInput
+beq r1 -1067319543 ra
+beq r1 -1217998945 ra
+beq r1 -721824748 ra
+# N2
+move minRatio 10
+move maxRatio 80
+l inputRatio filtration RatioNitrogenInput
+beq r1 -632657357 ra
+beq r1 -1387439451 ra
+beq r1 632853248 ra
 
 # Unknown filter type
 s filtration On 0
