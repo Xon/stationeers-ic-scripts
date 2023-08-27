@@ -1,0 +1,100 @@
+﻿##### SYSTEM VARIABLES #####
+define SetPoint 293.15
+define MaxSetPoint 297.15
+define Kp 0.006 #Aprox MaxOutput/SP
+define Ti 0
+define Td 0
+define MinOutput 0
+define MaxOutput 10
+define FilterTicks 3 #SensorFilter
+# Direct Mode => 1
+# Reverse Mode => -1
+define RegulatorMode -1
+
+alias WaterSensor d0
+alias Actuator d1
+alias WarmWaterTank d2
+
+define TimeStep 0.5
+alias InputValue r0
+alias e r1
+alias ProcessValue r3
+alias iCalc r4
+alias dCalc r5
+alias FilterCounter r6
+alias FilterSum r7
+alias SP r8
+alias PreviousE r9
+alias TempValue r10
+
+move e 0
+move ProcessValue 0
+move iCalc 0
+move dCalc 0
+move FilterCounter 0
+move FilterSum 0
+move PreviousE 0
+move TempValue 0
+move SP SetPoint
+l InputValue WaterSensor Pressure
+jal CalculateError
+move PreviousE e
+Loop:
+yield
+l r0 WarmWaterTank Pressure
+blez r0 SetOff
+l r0 WaterSensor Pressure
+bge r0 4500 SetOff
+l r11 WaterSensor VolumeOfLiquid
+l r12 WaterSensor Volume
+div r0 r11 r12
+bge r0 0.8 SetOff
+
+l InputValue WaterSensor Temperature
+bge InputValue MaxSetPoint SetOff
+Filter:
+beqz FilterTicks Calculate
+brlt FilterCounter FilterTicks 3
+div TempValue FilterSum FilterCounter #filterRedu
+sub FilterSum FilterSum TempValue
+add FilterCounter FilterCounter 1
+min FilterCounter FilterCounter FilterTicks
+add FilterSum InputValue FilterSum
+div InputValue FilterSum FilterCounter
+Calculate:
+jal CalculateError
+Proportional:
+mul ProcessValue Kp e #pCalc
+Integrator:
+breqz Ti 4
+div TempValue ProcessValue Ti
+add iCalc iCalc TempValue
+add ProcessValue ProcessValue iCalc
+Derivative:
+sub dCalc e PreviousE
+div dCalc dCalc TimeStep
+mul dCalc dCalc Kp
+mul dCalc dCalc Td
+move PreviousE e
+add ProcessValue ProcessValue dCalc
+Limits:
+min iCalc MaxOutput iCalc
+max iCalc MinOutput iCalc
+min ProcessValue MaxOutput ProcessValue
+max ProcessValue MinOutput ProcessValue
+j SetState
+SetOff:
+move ProcessValue MinOutput
+SetState:
+s db Setting ProcessValue
+bdseal Actuator SetActuator
+j Loop
+CalculateError:
+sub e InputValue SP
+mul e e RegulatorMode
+j ra
+SetActuator:
+sgez r11 ProcessValue
+s Actuator On r11
+s Actuator Setting ProcessValue
+j ra
