@@ -50,7 +50,7 @@ ble r0 externalTemp stopPumpHotishToWarm
 lbn r0 sGasTank hotishSteam Pressure 3
 beqz r0 stopPumpHotishToWarm
 lbn r0 sLiquidTank warmWater Pressure 3
-bgt r0 4000 hotishSteamPump
+bgt r0 4000 stopPumpHotishToWarm
 move needCooling 1
 sbn gasVolumePump hotishSteamPump On 1
 sbn condensor steamCondensor On 1
