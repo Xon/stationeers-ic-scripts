@@ -1,11 +1,11 @@
 ﻿##### SYSTEM VARIABLES #####
 define SetPoint 293.15 #Not used if SP-Device is set
-define MinSetPoint 283.15
-define Kp 0.3 #Aprox MaxOutput/SP
+define MinSetPoint 288.15
+define Kp 0.1 #Aprox MaxOutput/SP
 define Ti 0
 define Td 0
 define MinOutput 0
-define MaxOutput 100
+define MaxOutput 10
 define FilterTicks 3 #SensorFilter
 # Direct Mode => 1
 # Reverse Mode => -1
