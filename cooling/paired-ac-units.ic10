@@ -1,7 +1,7 @@
 ﻿alias debugOuput d1
 
-define minTemperature 243.15
-define maxTemperature 413.15
+define minTemperature 213.15
+define maxTemperature 973.15
 
 alias isCooling r11
 alias tempSetting r12
