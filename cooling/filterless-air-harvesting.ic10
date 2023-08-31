@@ -1,0 +1,100 @@
+﻿define extSensor HASH("External sensor")
+define coldGas HASH("Cold gas sensor")
+define xPump HASH("Pollutant distiller pump")
+define xSensor HASH("Pollutant distiller sensor")
+define xPurgeSensor HASH("Pollutant purge sensor")
+define xPurgeValve HASH("Pollutant purge valve")
+define xCooler HASH("Hot pollutant cooler valve")
+define co2Pump HASH("co2 distiller pump")
+define co2Cooler HASH("co2 cooler valve")
+define co2Sensor HASH("co2 sensor")
+define co2PurgeSensor HASH("co2 purge sensor")
+define co2PurgePump HASH("co2 purge pump")
+define co2ExhaustSensor HASH("co2 exhaust sensor")
+define co2ExhaustPump HASH("co2 exhaust pump")
+define volPump HASH("Volatiles distiller pump")
+define harvestableAir HASH("Dirty air tank")
+
+define bigGasTank 1280378227
+define gasSensor 435685051
+define gasValve -1280984102
+define poweredVent -785498334
+define liquidSensor -2113838091
+define sGasTank 272136332
+define sLiquidTank 608607718
+define gasVPump -321403609
+define gasTPump 1310794736
+define purgeValve -737232128
+
+alias extTemp r14
+alias coldTemp r13
+alias xFilterEnabled r12
+alias co2FilterEnabled r11
+
+loop:
+yield
+lbn extTemp gasSensor extSensor Temperature 3
+lbn coldTemp gasSensor coldGas Temperature 3
+
+lbn r0 liquidSensor xPurgeSensor Pressure 3
+sgtz r0 r0
+sbn purgeValve xPurgeValve On r0
+lbn r0 liquidSensor co2PurgeSensor Pressure 3
+sgtz r0 r0
+sbn purgeValve co2PurgePump On r0
+lbn r0 gasSensor co2ExhaustSensor Pressure 3
+sgtz r0 r0
+sbn gasVPump co2ExhaustPump On r0
+
+beqal xFilterEnabled 0 pressurizeAirMixture
+beqal xFilterEnabled 1 coolAirMixture
+beqal xFilterEnabled 2 pumpCo2VolMixture
+beqal co2FilterEnabled 0 coolCo2VolMixture
+beqal co2FilterEnabled 1 pumpVol
+
+j loop
+pressurizeAirMixture:
+lbn r0 gasSensor xSensor Pressure 3
+sle r0 r0 25000
+sbn gasTPump xPump On r0
+bnez r0 ra
+move xFilterEnabled 1
+j ra
+coolAirMixture:
+lbn r0 gasSensor xSensor Temperature 3
+sgt r0 r0 411.15
+sbn gasValve xCooler On r0
+lbn r1 gasSensor xSensor RatioPollutant 3
+lbn r2 gasSensor xSensor RatioLiquidPollutant 3
+add r0 r1 r2
+bgez r0 ra
+sbn gasValve xCooler On 0
+move xFilterEnabled 2
+j ra
+pumpCo2VolMixture:
+lbn r0 gasSensor xSensor Pressure 3
+sgtz r0 r0
+sbn gasTPump co2Pump On r0
+bnez r0 ra
+move xFilterEnabled 0
+j ra
+coolCo2VolMixture:
+lbn r0 gasSensor co2Sensor Pressure 3
+beqz r0 ra
+lbn r0 gasSensor co2Sensor Temperature 3
+sgt r0 r0 263.15 
+sbn gasValve co2Cooler On r0
+lbn r1 gasSensor co2Sensor RatioCarbonDioxide 3
+lbn r2 gasSensor co2Sensor RatioLiquidCarbonDioxide 3
+add r0 r1 r2
+bgez r0 ra
+sbn gasValve co2Cooler On 0
+move co2FilterEnabled 1
+j ra
+pumpVol:
+lbn r0 gasSensor co2Sensor Pressure 3
+sgtz r0 r0
+sbn gasTPump volPump On r0
+bnez r0 ra
+move co2FilterEnabled 0
+j ra
