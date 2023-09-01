@@ -54,11 +54,17 @@ beqal co2FilterEnabled 1 pumpVol
 
 j loop
 pressurizeAirMixture:
+lbn r0 bigGasTank harvestableAir Pressure 3
+beqz r0 srcEmpty
 lbn r0 gasSensor xSensor Pressure 3
 sle r0 r0 25000
 sbn gasTPump xPump On r0
+s db Setting r0
 bnez r0 ra
 move xFilterEnabled 1
+srcEmpty:
+sbn gasTPump xPump On 0
+s db Setting 0
 j ra
 coolAirMixture:
 lbn r0 gasSensor xSensor Temperature 3
@@ -67,7 +73,8 @@ sbn gasValve xCooler On r0
 lbn r1 gasSensor xSensor RatioPollutant 3
 lbn r2 gasSensor xSensor RatioLiquidPollutant 3
 add r0 r1 r2
-bgez r0 ra
+s db Setting r0
+bgtz r0 ra
 sbn gasValve xCooler On 0
 move xFilterEnabled 2
 j ra
@@ -75,6 +82,7 @@ pumpCo2VolMixture:
 lbn r0 gasSensor xSensor Pressure 3
 sgtz r0 r0
 sbn gasTPump co2Pump On r0
+s db Setting r0
 bnez r0 ra
 move xFilterEnabled 0
 j ra
@@ -87,7 +95,8 @@ sbn gasValve co2Cooler On r0
 lbn r1 gasSensor co2Sensor RatioCarbonDioxide 3
 lbn r2 gasSensor co2Sensor RatioLiquidCarbonDioxide 3
 add r0 r1 r2
-bgez r0 ra
+s db Setting r0
+bgtz r0 ra
 sbn gasValve co2Cooler On 0
 move co2FilterEnabled 1
 j ra
@@ -95,6 +104,7 @@ pumpVol:
 lbn r0 gasSensor co2Sensor Pressure 3
 sgtz r0 r0
 sbn gasTPump volPump On r0
+s db Setting r0
 bnez r0 ra
 move co2FilterEnabled 0
 j ra
