@@ -1,8 +1,12 @@
-﻿define extSensor HASH("External sensor")
+﻿alias xFilter d0
+alias co2Filter d1
+alias button d5
+define extSensor HASH("External sensor")
 define coldGas HASH("Cold gas sensor")
 define xPump HASH("Pollutant distiller pump")
 define xSensor HASH("Pollutant distiller sensor")
-define xCooler HASH("Pollutant cooler valve")
+define xCooler HASH("Pollutant cooler vent")
+define xCoolerPump HASH("Pollutant cooler pump")
 define co2Pump HASH("co2 distiller pump")
 define co2Cooler HASH("co2 cooler valve")
 define co2Sensor HASH("co2 sensor")
@@ -11,77 +15,67 @@ define co2PurgePump HASH("co2 purge pump")
 define co2ExhaustSensor HASH("co2 exhaust sensor")
 define co2ExhaustPump HASH("co2 exhaust pump")
 define volPump HASH("Volatiles distiller pump")
-define hotGas HASH("Hot gas sensor")
-
-define activeVent -1129453144
-define bigGasTank 1280378227
+define volSensor HASH("Volatiles sensor")
+define hotGas HASH("Hotgas sensor")
 define gasSensor 435685051
 define gasValve -1280984102
 define poweredVent -785498334
 define liquidSensor -2113838091
-define sGasTank 272136332
-define sLiquidTank 608607718
 define gasVPump -321403609
 define gasTPump 1310794736
 define purgeValve -737232128
-
 alias extTemp r14
 alias coldTemp r13
 alias xFilterEnabled r12
 alias co2FilterEnabled r11
-
+jal safeSystem
+s xFilter Setting xFilterEnabled
+s co2Filter Setting co2FilterEnabled
 loop:
 yield
+l r0 button Open
+beqz r0 safeSystem
 lbn extTemp gasSensor extSensor Temperature 3
 lbn coldTemp gasSensor coldGas Temperature 3
-
 lbn r0 liquidSensor co2PurgeSensor Pressure 3
 sgtz r0 r0
 sbn purgeValve co2PurgePump On r0
 lbn r0 gasSensor co2ExhaustSensor Pressure 3
 sgtz r0 r0
 sbn gasVPump co2ExhaustPump On r0
-
-beqal xFilterEnabled 0 pressurizeAirMixture
-beqal xFilterEnabled 1 coolAirMixture
-beqal xFilterEnabled 2 pumpCo2VolMixture
+beqal xFilterEnabled 0 coolAndExtractAirMixture
+beqal xFilterEnabled 1 pumpCo2VolMixture
 beqal co2FilterEnabled 0 coolCo2VolMixture
 beqal co2FilterEnabled 1 pumpVol
-
+s xFilter Setting xFilterEnabled
+s co2Filter Setting co2FilterEnabled
 j loop
-pressurizeAirMixture:
+coolAndExtractAirMixture:
 lbn r0 gasSensor xSensor Pressure 3
-sge r1 413.15 extTemp
-sle r0 r0 25000
-select r0 r1 0 r0
-sbn activeVent xPump On r0
-s db Setting r0
-bnez r0 ra
-move xFilterEnabled 1
-srcEmpty:
-sbn gasTPump xPump On 0
-s db Setting 0
-j ra
-coolAirMixture:
+sle r0 r0 40000
+sle r1 extTemp 402.15 
+and r0 r0 r1
+sbn poweredVent xPump On r0
 lbn r0 gasSensor xSensor Temperature 3
-sgt r0 r0 411.15
-lbn r1 gasSensor hotGas Temperature 3
-sge r1 r0 r1
-select r0 r1 0 r0
-sbn gasValve xCooler On r0
+sgt r0 r0 398.15
+and r0 r0 r1
+sbn poweredVent xCooler On r0
+sbn gasTPump xCoolerPump On r0
 lbn r1 gasSensor xSensor RatioPollutant 3
 lbn r2 gasSensor xSensor RatioLiquidPollutant 3
 add r0 r1 r2
-s db Setting r0
 bgtz r0 ra
-sbn gasValve xCooler On 0
-move xFilterEnabled 2
+sbn poweredVent xCooler On 0
+sbn gasTPump xCoolerPump On 0
+move xFilterEnabled 1
 j ra
 pumpCo2VolMixture:
 lbn r0 gasSensor xSensor Pressure 3
 sgtz r0 r0
+lbn r1 gasSensor co2Sensor Pressure 3
+sle r1 r1 40000
+and r0 r0 r1
 sbn gasTPump co2Pump On r0
-s db Setting r0
 bnez r0 ra
 move xFilterEnabled 0
 j ra
@@ -89,14 +83,13 @@ coolCo2VolMixture:
 lbn r0 gasSensor co2Sensor Pressure 3
 beqz r0 ra
 lbn r0 gasSensor co2Sensor Temperature 3
-sgt r0 r0 263.15
-sge r1 coldTemp 273.15
-select r0 r1 0 r0
+sge r0 r0 263.15
+sle r1 coldTemp 273.15
+and r0 r0 r1
 sbn gasValve co2Cooler On r0
 lbn r1 gasSensor co2Sensor RatioCarbonDioxide 3
 lbn r2 gasSensor co2Sensor RatioLiquidCarbonDioxide 3
 add r0 r1 r2
-s db Setting r0
 bgtz r0 ra
 sbn gasValve co2Cooler On 0
 move co2FilterEnabled 1
@@ -104,8 +97,18 @@ j ra
 pumpVol:
 lbn r0 gasSensor co2Sensor Pressure 3
 sgtz r0 r0
+lbn r1 gasSensor volSensor Pressure 3
+sle r1 r1 40000
+and r0 r0 r1
 sbn gasTPump volPump On r0
 s db Setting r0
 bnez r0 ra
 move co2FilterEnabled 0
 j ra
+safeSystem:
+sbn poweredVent xPump On 0
+sbn gasTPump co2Pump On 0
+sbn gasTPump volPump On 0
+sbn gasValve xCooler On 0
+sbn gasValve co2Cooler On 0
+j loop
