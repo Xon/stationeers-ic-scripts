@@ -16,7 +16,6 @@ define co2ExhaustSensor HASH("co2 exhaust sensor")
 define co2ExhaustPump HASH("co2 exhaust pump")
 define volPump HASH("Volatiles distiller pump")
 define volSensor HASH("Volatiles sensor")
-define hotGas HASH("Hotgas sensor")
 define gasSensor 435685051
 define gasValve -1280984102
 define poweredVent -785498334
