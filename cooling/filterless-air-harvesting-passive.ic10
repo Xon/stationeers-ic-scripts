@@ -51,13 +51,13 @@ j loop
 coolAndExtractAirMixture:
 l extTemp extSensor Temperature
 s db Setting extTemp
-sle r1 extTemp 403.15
+slt r1 extTemp 403.15
 lbn r0 gasSensor xSensor Pressure 3
-sle r0 r0 35000
+sle r0 r0 30000
 and r0 r0 r1
 sbn poweredVent xPump On r0
 lbn r0 gasSensor xSensor Temperature 3
-sge r0 r0 403.15
+sgt r0 r0 403
 and r0 r0 r1
 sbn poweredVent xCooler On r0
 sbn gasTPump xCoolerPump On r0
@@ -72,6 +72,10 @@ sbn gasTPump xCoolerPump On 0
 move xFilterEnabled 1
 j ra
 pumpCo2VolMixture:
+lbn r1 gasSensor xSensor RatioPollutant 3
+lbn r2 gasSensor xSensor RatioLiquidPollutant 3
+add r0 r1 r2
+bgtz r0 ra
 lbn r0 gasSensor xSensor Pressure 3
 sgtz r0 r0
 lbn r1 gasSensor co2Sensor Pressure 3
@@ -83,11 +87,11 @@ move xFilterEnabled 0
 j ra
 coolCo2VolMixture:
 lbn coldTemp gasSensor coldGas Temperature 3
-sle r1 coldTemp 273.15
+slt r1 coldTemp 273.15
 lbn r0 gasSensor co2Sensor Pressure 3
 beqz r0 ra
 lbn r0 gasSensor co2Sensor Temperature 3
-sge r0 r0 263.15
+sgt r0 r0 263.15
 and r0 r0 r1
 sbn gasValve co2Cooler On r0
 lbn r1 gasSensor co2Sensor RatioCarbonDioxide 3
