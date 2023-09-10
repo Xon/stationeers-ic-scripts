@@ -1,0 +1,57 @@
+﻿define idleCheck 10
+define extSensor HASH("External Sensor")
+define extSensorHash -1252983604
+define occupancySensor 322782515
+define shutter 2056377335
+define door1 -324331872
+define door2 -793837322
+define light1 -1860064656
+define light2 1436121888
+define light3 1592905386
+define light4 1514476632
+define light5 555215790
+define light6 1847265835
+define light7 797794350
+define light8 797794350
+alias extTemp r13
+alias lastCheck r14
+loop:
+sleep 1
+lbn extTemp extSensorHash extSensor Temperature Maximum
+s db Setting extTemp
+
+lb r0 occupancySensor Quantity Maximum
+sgtz r0 r0
+sb light1 On r0
+sb light2 On r0
+sb light3 On r0
+sb light4 On r0
+sb light5 On r0
+sb light6 On r0
+sb light7 On r0
+sb light8 On r0
+
+bgtz r0 playersPresent
+sb shutter Open 0
+sub lastCheck lastCheck 1
+s db Setting lastCheck
+bgez lastCheck loop
+move lastCheck idleCheck
+
+s db Setting 0
+sb door1 Mode 1
+sb door1 Open 0
+sb door1 Mode 0
+
+sb door2 Mode 1
+sb door2 Open 0
+sb door2 Mode 0
+
+j loop
+playersPresent:
+sgt r0 extTemp 533.15
+sb shutter Open r0
+move lastCheck idleCheck
+
+j loop
+
