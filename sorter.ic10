@@ -1,0 +1,37 @@
+﻿
+define sorterHash -1009150565
+push HASH("Iron Sorter")
+push -1301215609
+push HASH("Copper Sorter")
+push -404336834
+push HASH("Silicon Sorter")
+push HASH("Gold Sorter")
+push 226410516
+push HASH("Silver Sorter")
+push -929742000
+push HASH("Lead Sorter")
+push 2134647745
+push HASH("Nickel Sorter")
+push -1406385572
+push 0
+push 0
+
+alias setname r14
+alias sethash r13
+
+s db Setting 0
+reset:
+move sp 0
+start:
+yield
+add sp sp 1
+peek setname
+add sp sp 1
+peek sethash
+beqz setname reset
+
+sbn sorterHash setname Mode 1
+
+lbns r0 sorterHash setname 1 OccupantHash 3
+sbn sorterHash setname Output r0
+j ra
