@@ -33,5 +33,6 @@ beqz setname reset
 sbn sorterHash setname Mode 1
 
 lbns r0 sorterHash setname 1 OccupantHash 3
+seq r0 r0 sethash
 sbn sorterHash setname Output r0
 j ra
