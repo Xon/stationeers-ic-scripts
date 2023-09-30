@@ -1,10 +1,10 @@
-﻿
-define sorterHash -1009150565
+﻿define sorterHash -1009150565
 push HASH("Iron Sorter")
 push -1301215609
 push HASH("Copper Sorter")
 push -404336834
 push HASH("Silicon Sorter")
+push -290196476
 push HASH("Gold Sorter")
 push 226410516
 push HASH("Silver Sorter")
@@ -13,6 +13,16 @@ push HASH("Lead Sorter")
 push 2134647745
 push HASH("Nickel Sorter")
 push -1406385572
+push HASH("Uranium Sorter")
+push -1516581844
+push HASH("Cobalt Sorter")
+push -983091249
+push HASH("Reagent Mix Sorter")
+push -1641500434
+push HASH("Coal Sorter")
+push 1724793494
+push HASH("Charcoal Sorter")
+push 252561409
 push 0
 push 0
 
@@ -21,18 +31,21 @@ alias sethash r13
 
 s db Setting 0
 reset:
+yield
 move sp 0
 start:
-yield
 add sp sp 1
 peek setname
 add sp sp 1
 peek sethash
 beqz setname reset
 
-sbn sorterHash setname Mode 1
+sbn sorterHash setname Mode 2
 
-lbns r0 sorterHash setname 1 OccupantHash 3
+lbns r0 sorterHash setname 0 Occupied 3
+beqz r0 start
+
+lbns r0 sorterHash setname 0 OccupantHash 3
 seq r0 r0 sethash
 sbn sorterHash setname Output r0
-j ra
+j start
