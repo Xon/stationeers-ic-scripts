@@ -7,7 +7,7 @@ start:
 yield
 
 l r0 filtration PressureOutput
-sle r0 MaxOutputPressure stopFilteron
+sle r0 r0 MaxOutputPressure
 
 s filtration Mode r0
 j start
