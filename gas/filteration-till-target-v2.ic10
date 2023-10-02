@@ -1,0 +1,13 @@
+alias filtration db
+
+define MaxOutputPressure 30000 # kPa
+
+s filtration Open 0
+start:
+yield
+
+l r0 filtration PressureOutput
+sle r0 MaxOutputPressure stopFilteron
+
+s filtration Mode r0
+j start
