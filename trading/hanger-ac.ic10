@@ -1,0 +1,35 @@
+﻿alias hangerStateSwitch d0
+
+define InteriorVent HASH("Interior vent")
+define ExternalVent HASH("External vent")
+define PoweredVent -785498334
+define GasSensors -1252983604
+
+alias lastState r15
+move lastState 0
+
+s db Setting 0
+inputLoop:
+yield
+lb r1 GasSensors Pressure Maximum
+s db Setting r1
+l r0 hangerStateSwitch Open
+beq r0 lastState inputLoop
+move lastState r0
+jal toggleVents
+stateChange:
+yield
+beqz r0 inputLoop
+# doing depressization, stop vents once done
+lb r1 GasSensors Pressure Maximum
+s db Setting r1
+bge r1 0.00001 stateChange
+# done
+s hangerStateSwitch Open 0
+move r0 0
+jal toggleVents
+j inputLoop
+toggleVents:
+sbn PoweredVent ExternalVent Mode 1
+sbn PoweredVent ExternalVent On r0
+j ra
