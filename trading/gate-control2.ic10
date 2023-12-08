@@ -22,7 +22,7 @@ s hangerStateSwitch2 Open r0
 move lastState r0
 s db Setting r0
 jal GateToggle
-s db Setting r0
+s db Setting lastState
 j inputLoop
 
 GateToggle:
